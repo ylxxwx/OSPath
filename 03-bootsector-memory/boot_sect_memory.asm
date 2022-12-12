@@ -38,8 +38,8 @@ int 0x10
 mov al, [0x7c2d]
 int 0x10
 
-
-jmp $ ; infinite loop
+hlt
+;jmp $ ; infinite loop
 
 the_secret:
     ; ASCII code 0x58 ('X') is stored just before the zero-padding.
