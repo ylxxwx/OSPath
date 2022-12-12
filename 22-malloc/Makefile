@@ -49,4 +49,4 @@ kernel_entry.o: boot/kernel_entry.asm
 
 clean:
 	rm -rf *.bin *.dis *.o os-image.bin *.elf *.img
-	rm -rf kernel/*.o boot/*.bin drivers/*.o boot/*.o
+	rm -rf kernel/*.o boot/*.bin drivers/*.o boot/*.o cpu/*.o
