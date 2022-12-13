@@ -3,6 +3,7 @@
 #include "kernel.h"
 #include "../libc/string.h"
 #include "../libc/mem.h"
+#include "../mm/memory.h"
 
 void main() {
     isr_install();
@@ -10,6 +11,23 @@ void main() {
 
     kprint("Type something, it will go through the kernel\n"
         "Type END to halt the CPU or PAGE to request a kmalloc()\n> ");
+    init_memory();
+
+    char* address = (char *)0x200000;
+    char ch = *address; // read
+    //*address = 'a';   // write
+    *address = 'b';
+    char rch = *address;
+    kprint_hex(rch);
+    kprint("\n");
+    *address = 'c';
+    rch = *address;
+    kprint_hex(rch);
+    kprint("\n");
+    *address = 'd';
+    rch = *address;
+    kprint_hex(rch);
+    kprint("\n");
 }
 
 void user_input(char *input) {

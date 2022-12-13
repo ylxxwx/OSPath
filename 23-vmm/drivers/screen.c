@@ -50,7 +50,23 @@ void kprint_backspace() {
     print_char(0x08, col, row, WHITE_ON_BLACK);
 }
 
-
+void kprint_hex(unsigned int value) {
+    for (int idx = 7; idx >= 0; idx--) {
+        int tmp = value;
+        for (int st = 0; st < idx; st++) {
+            tmp = (tmp >> 4);
+        }
+        tmp = tmp & 0xF;
+        char ch;
+        if (tmp >= 0 && tmp <= 9) {
+            ch = (char)tmp + '0';
+        } else {
+            ch = (char)(tmp - 10) + 'A';
+        }
+        
+        print_char(ch, -1, -1, WHITE_ON_BLACK);
+    }
+}
 /**********************************************************
  * Private kernel functions                               *
  **********************************************************/

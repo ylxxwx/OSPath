@@ -1,8 +1,8 @@
 # $@ = target file
 # $< = first dependency
 # $^ = all dependencies
-C_SOURCES = $(wildcard kernel/*.c drivers/*.c cpu/*.c libc/*.c)
-HEADERS = $(wildcard kernel/*.h drivers/*.h cpu/*.h libc/*.h)
+C_SOURCES = $(wildcard kernel/*.c drivers/*.c cpu/*.c libc/*.c mm/*.c)
+HEADERS = $(wildcard kernel/*.h drivers/*.h cpu/*.h libc/*.h mm/*.h)
 
 # Nice syntax for file extension replacement
 OBJS = ${C_SOURCES:.c=.o cpu/interrupt.o}
@@ -10,7 +10,7 @@ OBJS = ${C_SOURCES:.c=.o cpu/interrupt.o}
 # Change this if your cross-compiler is somewhere else
 CC = gcc
 GDB = gdb
-CFLAGS = -g -fno-pie -m32 -ffreestanding
+CFLAGS = -g -fno-pie -m32 -ffreestanding 
 LDFLAGS = -m elf_i386 -Ttext 0x1000 --oformat binary
 
 all: run
@@ -48,5 +48,5 @@ kernel_entry.o: boot/kernel_entry.asm
 	nasm $< -f bin -o $@
 
 clean:
-	rm -rf *.bin *.dis *.o os-image.bin *.elf *.img
-	rm -rf kernel/*.o boot/*.bin drivers/*.o boot/*.o cpu/*.o
+	rm -rf *.bin *.dis *.o os-image.bin *.elf *.img bochsout.txt
+	rm -rf kernel/*.o boot/*.bin drivers/*.o boot/*.o cpu/*.o mm/*.o

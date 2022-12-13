@@ -7,7 +7,7 @@ void memory_copy(u8 *source, u8 *dest, int nbytes) {
     }
 }
 
-void memory_set(u8 *dest, u8 val, u32 len) {
+void kmemset(u8 *dest, u8 val, u32 len) {
     u8 *temp = (u8 *)dest;
     for ( ; len != 0; len--) *temp++ = val;
 }
@@ -30,4 +30,30 @@ u32 kmalloc(u32 size, int align, u32 *phys_addr) {
     u32 ret = free_mem_addr;
     free_mem_addr += size; /* Remember to increment the pointer */
     return ret;
+}
+
+u32 kmalloc_a(u32 sz) {
+    //kprint_hex(0xABCDEF01);
+    //kprint("kmalloc_a placement_address:  ");
+    //kprint_hex(placement_address);
+    //kprint("\n sz: ");
+    //kprint_hex(sz);
+    //kprint("\n");
+    u32 tmp = free_mem_addr;
+    free_mem_addr += sz;
+    return tmp;
+}
+
+u32 kmalloc_p(u32 sz, int align) {
+    if (align == 1 && (free_mem_addr & 0xFFFFF000)) {
+        free_mem_addr &= 0xFFFFF000;
+        free_mem_addr += 0x1000;
+    }
+    return kmalloc_a(0x1000);
+}
+
+u32 kmalloc_ap(u32 sz, int align, u32 *phys) {
+    u32 tmp = kmalloc_p(sz, align);
+    *phys = tmp;
+    return tmp;
 }
