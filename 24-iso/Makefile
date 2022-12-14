@@ -11,13 +11,12 @@ OBJS = ${C_SOURCES:.c=.o cpu/interrupt.o}
 CC = gcc
 GDB = gdb
 CFLAGS = -g -fno-pie -m32 -ffreestanding 
-LDFLAGS = -m elf_i386 -T../99_common/link.ld
+LDFLAGS = -m elf_i386 -Ttext 0x1000 --oformat binary
 
 all: run
 
 bochs: root-image.bin
-#	bochsdbg -f ../99_common/bochs.bochsrc
-	bochs -f ../99_common/bochs.bochsrc
+	bochsdbg -f ../99_common/bochs.bochsrc
 
 run: root-image.bin
 	qemu-system-x86_64 -drive format=raw,file=$<,index=0,if=floppy
@@ -29,10 +28,10 @@ root-image.bin: boot/bootsect.bin kernel.bin
 # '--oformat binary' deletes all symbols as a collateral, so we don't need
 # to 'strip' them manually on this case
 kernel.bin: boot/kernel_entry.o ${OBJS}
-	ld $(LDFLAGS) -o $@ $^ --oformat binary
+	ld -m elf_i386 -T../99_common/linkLilo.ld -o $@ $^ --oformat binary
 
-kernel.elf: boot/kernel_entry.o ${OBJS}
-	ld $(LDFLAGS) -z noexecstack -o $@ $^
+kernel.img: boot/kernel_entry.o ${OBJS}
+	ld -m elf_i386 -z noexecstack -T../99_common/linkGrub.ld -o $@ $^
 
 kernel_entry.o: boot/kernel_entry.asm
 	nasm $< -f elf -o $@
@@ -50,4 +49,4 @@ kernel_entry.o: boot/kernel_entry.asm
 
 clean:
 	rm -rf *.bin *.dis *.o os-image.bin *.elf *.img bochsout.txt
-	rm -rf kernel/*.o boot/*.bin drivers/*.o boot/*.o cpu/*.o mm/*.o libc/*.o
+	rm -rf kernel/*.o boot/*.bin drivers/*.o boot/*.o cpu/*.o mm/*.o

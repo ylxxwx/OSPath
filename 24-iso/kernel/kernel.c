@@ -7,14 +7,17 @@
 
 extern u32 free_mem_addr;
 void main() {
+
+    kprint_hex(free_mem_addr);
     isr_install();
+    kprint_hex(free_mem_addr);
     irq_install();
+    kprint_hex(free_mem_addr);
 
     kprint("Type something, it will go through the kernel\n"
         "Type END to halt the CPU or PAGE to request a kmalloc()\n> ");
-
     init_memory();
-
+/*
     char* address = (char *)0xF0000000;
     char ch = *address; // read
     //*address = 'a';   // write
@@ -30,9 +33,10 @@ void main() {
     rch = *address;
     kprint_hex(rch);
     kprint("\n");
-
+*/
     while(1) {
         asm("hlt");
+        //kprint("A");
     }
 }
 

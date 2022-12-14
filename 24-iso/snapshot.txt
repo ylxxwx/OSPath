@@ -1,0 +1,25 @@
+ . http://www.nongnu.org/vgabios
+
+Bochs VBE Display Adapter enabled
+
+Bochs 2.7 BIOS - build: 08/01/21
+$Revision: 14314 $ $Date: 2021-07-14 18:10:19 +0200 (Wed, 14 Jul 2021) $
+Options: apmbios pcibios pnpbios eltorito rombios32
+
+
+Press F12 for boot menu.
+
+Booting from Floppy...
+Started in 16-bit Real Mode
+Loading kernel into memory
+Type something, it will go through the kernel
+Type END to halt the CPU or PAGE to request a kmalloc()
+> Free Memory: 00012000
+Top Memory: 00100000
+00012000received interrupt: 14
+Page Fault
+Page fault!( 00000000 |not present |read |kernel mode | |) at 0x 00200000
+00000062
+00000063
+00000064
+ÿ
