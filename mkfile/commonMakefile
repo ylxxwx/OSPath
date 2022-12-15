@@ -3,7 +3,7 @@
 # $^ = all dependencies
 # To make an object, always compile from its .c
 %.o: %.c ${HEADERS}
-	${CC} ${CFLAGS} -ffreestanding -c $< -o $@
+	${CC} ${CFLAGS} $(INC:%=-I %) -ffreestanding -c $< -o $@
 
 #%.o: %.asm
 #	nasm $< -f elf -o $@

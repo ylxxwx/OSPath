@@ -3,6 +3,7 @@
 # $^ = all dependencies
 C_SOURCES = $(wildcard kernel/*.c drivers/*.c cpu/*.c libc/*.c mm/*.c)
 HEADERS = $(wildcard kernel/*.h drivers/*.h cpu/*.h libc/*.h mm/*.h)
+INC = kernel drivers cpu libc mm
 # Nice syntax for file extension replacement
 OBJS = ${C_SOURCES:.c=.o cpu/interrupt.o}
 

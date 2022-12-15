@@ -25,7 +25,6 @@ typedef struct page_directory {
    u32 tablesPhysical[1024];
    //u32 physicalAddr;
 } page_directory_t;
-page_directory_t;
 
 void init_memory();
 void page_fault(registers_t regs);

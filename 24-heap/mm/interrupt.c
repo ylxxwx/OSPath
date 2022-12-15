@@ -1,9 +1,11 @@
-#include "../cpu/isr.h"
-#include "../cpu/type.h"
-#include "../drivers/screen.h"
+#include "isr.h"
+#include "type.h"
+#include "screen.h"
 #include "memory.h"
+#include "page.h"
+#include "panic.h"
+#include "frame.h"
 
-extern u32 current_directory;
 void page_fault(registers_t regs) {
    u32 faulting_address;
    asm ("mov %%cr2, %0": "=r"(faulting_address));

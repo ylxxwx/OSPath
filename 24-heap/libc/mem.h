@@ -8,5 +8,7 @@ void memory_set(u8 *dest, u8 val, u32 len);
 
 /* At this stage there is no 'free' implemented. */
 //u32 kmalloc(u32 size, int align, u32 *phys_addr);
-
+u32 kmalloc_a(u32 size);//, int align, u32 *phys_addr);
+u32 kmalloc_ap(u32 size, int align, u32 *phys_addr);
+void kmemset(u8 *dest, u8 val, u32 len);
 #endif

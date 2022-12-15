@@ -1,6 +1,7 @@
 #include "frame.h"
-#include "../cpu/type.h"
+#include "type.h"
 #include "memory.h"
+#include "panic.h"
 
 /*
     frame bit(idx, offset) <--> physical address 1:1 mapping.
