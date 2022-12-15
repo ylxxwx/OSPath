@@ -1,7 +1,7 @@
 # $@ = target file
 # $< = first dependency
 # $^ = all dependencies
-ifeq (0, 0)
+ifeq (0, 1)
 C_SOURCES = $(wildcard kernel/*.c drivers/*.c cpu/*.c libc/*.c)
 HEADERS = $(wildcard kernel/*.h drivers/*.h cpu/*.h libc/*.h)
 INC = kernel drivers cpu libc mm

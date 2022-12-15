@@ -27,6 +27,6 @@ typedef struct page_directory {
 } page_directory_t;
 
 void init_memory();
-void page_fault(registers_t regs);
+void page_fault(registers_t *regs);
 
 #endif // _MEMORY_H_

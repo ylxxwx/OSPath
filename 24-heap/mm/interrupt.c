@@ -6,18 +6,18 @@
 #include "panic.h"
 #include "frame.h"
 
-void page_fault(registers_t regs) {
+void page_fault(registers_t *regs) {
    u32 faulting_address;
    asm ("mov %%cr2, %0": "=r"(faulting_address));
 
-   int present = regs.err_code & 0x1;
-   int rw = regs.err_code & 0x2;
-   int us = regs.err_code & 0x4;
-   int reserved = regs.err_code & 0x8;
-   int id = regs.err_code & 0x10;
+   int present = regs->err_code & 0x1;
+   int rw = regs->err_code & 0x2;
+   int us = regs->err_code & 0x4;
+   int reserved = regs->err_code & 0x8;
+   int id = regs->err_code & 0x10;
 
    kprint("Page fault!( ");
-   kprint_hex(regs.err_code);
+   kprint_hex(regs->err_code);
    kprint(" |");
    if (present) kprint("present |");
    else kprint("not present |");
