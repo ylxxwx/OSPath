@@ -1,0 +1,19 @@
+# $@ = target file
+# $< = first dependency
+# $^ = all dependencies
+# To make an object, always compile from its .c
+%.o: %.c ${HEADERS}
+	${CC} ${CFLAGS} -ffreestanding -c $< -o $@
+
+#%.o: %.asm
+#	nasm $< -f elf -o $@
+
+%.bin: %.asm
+	nasm $< -f bin -o $@
+
+%.o: %.asm
+	nasm $< -f elf -o $@
+
+clean:
+	rm -rf *.bin *.dis *.o os-image.bin *.elf os.iso *.img bochsout.txt
+	rm -rf kernel/*.o boot/*.bin drivers/*.o boot/*.o cpu/*.o mm/*.o

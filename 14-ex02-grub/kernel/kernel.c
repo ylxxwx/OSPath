@@ -4,9 +4,12 @@ void dummy_test_entrypoint() {
 
 void main() {
     char* video_memory = (char*) 0xb8000;
-    *video_memory = 'X';
+    *video_memory = 'Z';
     *(video_memory + 1) = 4;
     *(video_memory + 2) = 'Y';
     *(video_memory + 3) = 4;
-    *(video_memory + 4) = 'Z';
+    *(video_memory + 4) = 'X';
+    *(video_memory + 5) = 4;
+    *(video_memory + 6) = 'W';
+    *(video_memory + 7) = 4;
 }

@@ -1,0 +1,14 @@
+# $@ = target file
+# $< = first dependency
+# $^ = all dependencies
+bochs: floppya.img
+	bochs -f ../mkfile/bochsenv/bochs.bochsrc
+
+run: floppya.img
+	qemu-system-x86_64 -drive format=raw,file=$<,index=0,if=floppy
+
+floppya.img: bootsect.bin ${KERNEL.BIN}
+	cat $^ > $@
+
+bootsect.bin: ${BOOTSECT.ASM}
+	nasm $< -f bin -o $@

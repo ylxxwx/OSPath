@@ -1,20 +1,31 @@
 # $@ = target file
 # $< = first dependency
 # $^ = all dependencies
-
+ifeq (0,1)
 all: run
 
-bochs: root-image.bin
-	bochs -f ../99_common/bochs.bochsrc
+bochs:  floppya.img
+	bochs -f ../mkfile/bochsenv/bochs.bochsrc
 
-run: root-image.bin
+run:  floppya.img
 	qemu-system-x86_64 -drive format=raw,file=$<,index=0,if=floppy
 
-root-image.bin: 32bit-main.bin
+floppya.img: 32bit-main.bin
 	cat $^ > $@
 
 %.bin: %.asm
 	nasm $< -f bin -o $@
 
 clean:
-	rm -f *.bin bochsout.txt
+	rm -f *.bin bochsout.txt *.img
+
+else 
+
+BOOTSECT.ASM=32bit-main.asm
+
+all: run
+
+include ../mkfile/floppyMakefile
+include ../mkfile/commonMakefile
+
+endif

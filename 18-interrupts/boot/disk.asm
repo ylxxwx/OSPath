@@ -24,6 +24,7 @@ disk_load:
     pop dx
     cmp al, dh    ; BIOS also sets 'al' to the # of sectors read. Compare it.
     jne sectors_error
+
     popa
     ret
 
@@ -39,6 +40,10 @@ disk_error:
 sectors_error:
     mov bx, SECTORS_ERROR
     call print
+    call print_nl
+    call print_hex
+    mov  dx, ax
+    call print_hex
 
 disk_loop:
     jmp $

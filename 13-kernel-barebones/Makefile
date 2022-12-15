@@ -1,6 +1,8 @@
 # $@ = target file
 # $< = first dependency
 # $^ = all dependencies
+ifeq (0,1)
+
 CC = gcc
 GDB = gdb
 CFLAGS = -g -fno-pie -m32 -ffreestanding
@@ -8,14 +10,14 @@ LDFLAGS = -m elf_i386 -Ttext 0x1000 --oformat binary
 
 all: run
 
-bochs: root-image.bin
-	bochs -f ../99_common/bochs.bochsrc
+bochs: floppya.img
+	bochs -f ../mkfile/bochsenv/bochs.bochsrc
 
-run: root-image.bin
+run: floppya.img
 	qemu-system-x86_64 -drive format=raw,file=$<,index=0,if=floppy
 #	qemu-system-i386 -fda $<
 
-root-image.bin: bootsect.bin kernel.bin
+floppya.img: bootsect.bin kernel.bin
 	cat $^ > $@
 
 bootsect.bin: bootsect.asm
@@ -36,3 +38,19 @@ kernel.dis: kernel.bin
 
 clean:
 	rm -f *.bin *.o *.dis bochsout.txt
+
+else 
+C_SOURCES = $(wildcard *.c )
+OBJS = ${C_SOURCES:.c=.o}
+
+KERNEL.BIN=kernel.bin
+BOOTSECT.ASM=bootsect.asm
+KERNELENTRY.ASM=kernel_entry.asm
+
+all: run
+
+include ../mkfile/floppyMakefile
+include ../mkfile/kernelMakefile
+include ../mkfile/commonMakefile
+
+endif

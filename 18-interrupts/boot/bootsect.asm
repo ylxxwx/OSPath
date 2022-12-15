@@ -1,9 +1,10 @@
 ; Identical to lesson 13's boot sector, but the %included files have new paths
 [bits 16]
 [org 0x7C00]
-KERNEL_OFFSET equ 0x1000 ; The same one we used when linking the kernel
-KERNEL_ENTRY  equ 0x1020 ; 0x20 is the GRUB header size.
-
+KERNEL_OFFSET    equ 0x1000 ; The same one we used when linking the kernel
+KERNEL_RUNOFFSET equ 0x100000 ;
+KERNEL_ENTRY     equ 0x100020 ; 0x20 is the GRUB header size.
+KERNEL_SIZE      equ 0x3000 ; 0x3000 sections
     mov [BOOT_DRIVE], dl ; Remember that the BIOS sets us the boot drive in 'dl' on boot
     mov bp, 0x9000
     mov sp, bp
@@ -29,8 +30,8 @@ load_kernel:
     call print
     call print_nl
 
-    mov bx, KERNEL_OFFSET ; Read from disk and store in 0x1000
-    mov dh, 30 ; Our future kernel will be larger, make this big
+    mov bx, KERNEL_OFFSET ; Read from disk and store in 0x1000, can't cross 64k.
+    mov dh, 35; Our future kernel will be larger, make this big
     mov dl, [BOOT_DRIVE]
     call disk_load
     ret
@@ -39,9 +40,15 @@ load_kernel:
 BEGIN_PM:
     mov ebx, MSG_PROT_MODE
     call print_string_pm
-    call KERNEL_ENTRY ; Give control to the kernel
-    jmp $ ; Stay here when the kernel returns control to us (if ever)
 
+    ; move kernel to 0x100000 to be consist to GRUB.
+    mov ecx, KERNEL_SIZE
+    mov edi, KERNEL_RUNOFFSET
+    mov esi, KERNEL_OFFSET
+    rep movsb
+
+    call KERNEL_ENTRY ;KERNEL_ENTRY ; Give control to the kernel
+    jmp $ ; Stay here when the kernel returns control to us (if ever)
 
 BOOT_DRIVE db 0 ; It is a good idea to store it in memory because 'dl' may get overwritten
 MSG_REAL_MODE db "Started in 16-bit Real Mode", 0

@@ -1,0 +1,14 @@
+# Change this if your cross-compiler is somewhere else
+CC = gcc
+GDB = gdb
+CFLAGS = -g -fno-pie -m32 -ffreestanding 
+LDFLAGS = -m elf_i386 -T../mkfile/link.ld
+
+kernel.bin:  kernel_entry.o ${OBJS}
+	ld $(LDFLAGS) -o $@ $^ --oformat binary
+
+kernel.elf: kernel_entry.o ${OBJS}
+	ld $(LDFLAGS) -z noexecstack -o $@ $^
+
+kernel_entry.o: ${KERNELENTRY.ASM}
+	nasm $< -f elf -o $@

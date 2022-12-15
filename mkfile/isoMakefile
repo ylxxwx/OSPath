@@ -1,0 +1,10 @@
+ISOBUILDDIR=../mkfile/buildiso
+
+iso: os.iso
+	qemu-system-x86_64 -boot d -cdrom os.iso
+
+os.iso: kernel.elf
+	cp $< ${ISOBUILDDIR}/iso/boot/
+	cd ${ISOBUILDDIR}; ./build.sh
+	cp ${ISOBUILDDIR}/$@ .
+
