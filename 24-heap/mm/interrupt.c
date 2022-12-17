@@ -41,6 +41,5 @@ void page_fault(registers_t *regs) {
       alloc_frame(page, 1, 1);
       return;
    }
-
    panic("Page fault");
 }

@@ -111,9 +111,9 @@ int print_char(char c, int col, int row, char attr) {
     if (offset >= MAX_ROWS * MAX_COLS * 2) {
         int i;
         for (i = 1; i < MAX_ROWS; i++) 
-            memory_copy((u8*)(get_offset(0, i) + VIDEO_ADDRESS),
-                        (u8*)(get_offset(0, i-1) + VIDEO_ADDRESS),
-                        MAX_COLS * 2);
+            kmemcpy((u8*)(get_offset(0, i-1) + VIDEO_ADDRESS),
+                    (u8*)(get_offset(0, i) + VIDEO_ADDRESS),
+                    MAX_COLS * 2);
 
         /* Blank last line */
         char *last_line = (char*) (get_offset(0, MAX_ROWS-1) + (u8*) VIDEO_ADDRESS);

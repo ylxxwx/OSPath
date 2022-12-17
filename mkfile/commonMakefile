@@ -5,9 +5,6 @@
 %.o: %.c ${HEADERS}
 	${CC} ${CFLAGS} $(INC:%=-I %) -ffreestanding -c $< -o $@
 
-#%.o: %.asm
-#	nasm $< -f elf -o $@
-
 %.bin: %.asm
 	nasm $< -f bin -o $@
 
@@ -16,4 +13,4 @@
 
 clean:
 	rm -rf *.bin *.dis *.o os-image.bin *.elf os.iso *.img bochsout.txt
-	rm -rf kernel/*.o boot/*.bin drivers/*.o boot/*.o cpu/*.o mm/*.o
+	rm -rf kernel/*.o boot/*.bin drivers/*.o boot/*.o cpu/*.o mm/*.o libc/*.o

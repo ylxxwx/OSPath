@@ -2,7 +2,7 @@
 # $< = first dependency
 # $^ = all dependencies
 bochs: floppya.img
-	bochs -f ../mkfile/bochsenv/bochs.bochsrc
+	bochsdbg -f ../mkfile/bochsenv/bochs.bochsrc
 
 run: floppya.img
 	qemu-system-x86_64 -drive format=raw,file=$<,index=0,if=floppy
