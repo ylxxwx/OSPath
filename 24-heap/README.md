@@ -2,23 +2,19 @@
 
 **Goal: Implement a memory allocator**
 
-We will add a kernel memory allocator to `libc/mem.c`. It is 
+We will add a kernel memory allocator to `libc/mem.c`and `mem/nofree_mem.c`. It is 
 implemented as a simple pointer to free memory, which keeps
 growing.
 
-The `kmalloc()` function can be used to request an aligned page,
-and it will also return the real, physical address, for later use.
+There are two set of memory management interfaces.
 
-We'll change the `kernel.c` leaving all the "shell" code there,
-Let's just try out the new `kmalloc()`, and check out that
-our first page starts at 0x10000 (as hardcoded on `mem.c`) and
-subsequent `kmalloc()`'s produce a new address which is
-aligned 4096 bytes or 0x1000 from the previous one.
+One set consists of kmalloc/kmalloc_a/kmalloc_ap, it manages the memory from 0x00000000 to 0xA00000.
+And these memory is not able to be freed. This set of memory management is located in mem/nofree_mem.c.
 
-Note that we added a new `strings.c:hex_to_ascii()` for
-nicer printing of hex numbers.
+Another set of memory management is located in lib/mem.c, which manages memory virtual address from 0xc0000000 to 0xFFFFFFFF. This is a dynamic heap, can be freed.
 
-Another cosmetic modification is to rename `types.c` to 
-`type.c` for language consistency.
+u32  kmalloc(u32 size);
+u32  kmalloc_a(u32 size, int align);
+u32  kmalloc_ap(u32 size, int align, u32 *phy);
 
-The rest of the files are unchanged from last lesson.
+And in this task, the gdt tabel is moved to address 0x00000000, so we can get full use of address till 0xA00000.
