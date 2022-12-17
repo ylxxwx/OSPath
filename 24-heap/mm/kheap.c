@@ -7,7 +7,7 @@
 // 2G 80000000 31
 // 3G C0000000 
 #define KHEAP_MAX_SIZE 0x40000000
-#define KHEAP_INDEX_SIZE 0x2000
+#define KHEAP_INDEX_SIZE 0x200
 #define KHEAP_MAGIC 0x123890AB
 #define KHEAP_HEAD_SIZE (sizeof(header_t))
 #define KHEAP_FOOT_SIZE (sizeof(footer_t))
@@ -39,6 +39,11 @@ static s8 header_t_less_than(void *a, void *b) {
 heap_t *create_heap(u32 start, u32 end, u32 max, u8 supervisor, u8 readonly) {
     heap_t *heap = (header_t*) kmalloc_nofree(sizeof(heap_t));
     void *buf = kmalloc_nofree(sizeof(u32) *KHEAP_INDEX_SIZE);
+    if (buf == 0) {
+        kprint("kmalloc memory for heap failed.\n");
+        return 0;
+    }
+
     heap->index = place_ordered_array((void*)buf, KHEAP_INDEX_SIZE, &header_t_less_than);
     //start += KHEAP_INDEX_SIZE;
     //if (start & 0xFFFFF000) {

@@ -3,13 +3,13 @@
 /* This should be computed at link time, but a hardcoded
  * value is fine for now. Remember that our kernel starts
  * at 0x1000 as defined on the Makefile */
-u32 free_mem_addr = 0x0001000;
+u32 free_mem_addr = 0x0000;
 
 u32 kmalloc_nofree(u32 sz) {
-    //if (free_mem_addr + sz >= 0x7C00) {
-    //    kprint("WARNING!!!! nofree memory reach 0x7C00\n");
-    //    return 0;
-    //}
+    if (free_mem_addr + sz >= 0x7C00) {
+        kprint("WARNING!!!! nofree memory reach 0x7C00\n");
+        return 0;
+    }
 
     if (free_mem_addr + sz >= 0xA0000) {
         kprint("WARNING!!!! nofree memory reach 0xA0000\n");
@@ -38,7 +38,7 @@ u32 kmalloc_ap_nofree(u32 sz, int align, u32 *phys) {
 
 void init_nofree_mem() {
     u32 *addr = (u32 *)0x0000;
-    free_mem_addr = *addr;
+    //free_mem_addr = *addr;
     kprint("NoFree memory start: ");
     kprint_hex(free_mem_addr);
     kprint("\n");

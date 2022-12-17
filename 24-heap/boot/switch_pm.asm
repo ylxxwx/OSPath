@@ -1,12 +1,7 @@
 [bits 16]
 switch_to_pm:
-    mov ecx, GDT_SEG_SZ
-    mov edi, 0
-    mov esi, gdt_seg_start
-    rep movsb
-
     cli ; 1. disable interrupts
-    lgdt [ds: GDT_SEG_SZ - GDT_DES_SZ] ; ; 2. gdt_descriptor load the GDT descriptor
+    lgdt [gdt_descriptor] ; 2. load the GDT descriptor
     mov eax, cr0
     or eax, 0x1 ; 3. set 32-bit mode bit in cr0
     mov cr0, eax
