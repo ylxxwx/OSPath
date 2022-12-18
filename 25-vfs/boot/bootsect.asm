@@ -31,7 +31,7 @@ load_kernel:
     call print_nl
 
     mov bx, KERNEL_OFFSET ; Read from disk and store in 0x1000, can't cross 64k.
-    mov dh, 40; Our future kernel will be larger, make this big
+    mov dh, 35; Our future kernel will be larger, make this big
     mov dl, [BOOT_DRIVE]
     call disk_load
     ret
