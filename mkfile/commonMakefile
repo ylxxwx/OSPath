@@ -13,4 +13,4 @@
 
 clean:
 	rm -rf *.bin *.dis *.o os-image.bin *.elf os.iso *.img bochsout.txt
-	rm -rf kernel/*.o boot/*.bin drivers/*.o boot/*.o cpu/*.o mm/*.o libc/*.o
+	rm -rf kernel/*.o boot/*.bin drivers/*.o boot/*.o cpu/*.o mm/*.o libc/*.o task/*.o
