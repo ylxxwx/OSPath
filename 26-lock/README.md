@@ -1,20 +1,12 @@
-*Concepts you may want to Google beforehand: malloc*
+*Concepts you may want to Google beforehand: lock mutex*
 
-**Goal: Implement a memory allocator**
+**Goal: Implement a yieldlock and mutex**
 
-We will add a kernel memory allocator to `libc/mem.c`and `mem/nofree_mem.c`. It is 
-implemented as a simple pointer to free memory, which keeps
-growing.
+To inplement a mutex, we need a list first.
 
-There are two set of memory management interfaces.
+yieldock depends on the atomic operator xchange.
 
-One set consists of kmalloc/kmalloc_a/kmalloc_ap, it manages the memory from 0x00000000 to 0xA00000.
-And these memory is not able to be freed. This set of memory management is located in mem/nofree_mem.c.
+From the shell, we use comand "SYNC" to create two user kernel threads, which try to read/write a share parameter "count". Without yieldlock, we can see the sync issues from screen print.
 
-Another set of memory management is located in lib/mem.c, which manages memory virtual address from 0xc0000000 to 0xFFFFFFFF. This is a dynamic heap, can be freed.
+With yieldlock, this issue is gone.
 
-u32  kmalloc(u32 size);
-u32  kmalloc_a(u32 size, int align);
-u32  kmalloc_ap(u32 size, int align, u32 *phy);
-
-And in this task, the gdt tabel is moved to address 0x00000000, so we can get full use of address till 0xA00000.

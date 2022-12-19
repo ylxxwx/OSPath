@@ -10,71 +10,24 @@
 u32 *addr = 0xD0000000;
 u32 size =   0x800000;
 
-int count = 0;
-
-void test_thread() {
-  int result = 0;
-      
-  while (1) {    
-      if (count < 0xFFFFFF) {
-        int tmp = count;
-        asm("hlt");
-        count++;
-        if (tmp + 1 !=  count) {
-          kprintf("first thread running switch out in process: %d:%d\n", tmp, count);  
-        }
-      } else {
-        asm("hlt");
-      }
-  }
-}
-
-void sec_thread() {
-  int result = 0;
-  while (1) {    
-      if (count > 0) {
-        int tmp = count;
-        asm("hlt");
-        count--;
-        if (tmp !=  count+1) {
-          kprintf("second thread running switch out in process: %d:%d\n", tmp, count);  
-        }
-      } else {
-        asm("hlt");
-      }
-  }
-}
 
 void main() {
-    cur_task_id = 1;
-    next_task_id = 0;
+    cur_task_id = 0;
     init_gdt();    
     isr_install();
     irq_install();
     init_memory();
-
-    tcb_t* thread = init_thread(
-      "test", test_thread, THREAD_DEFAULT_PRIORITY, false);
-
-    tcb_t* secthread = init_thread(
-      "test", sec_thread, THREAD_DEFAULT_PRIORITY, false);
-
-    kprintf("kernel esp: %x\n", thread->kernel_esp);
-
-    asm volatile (
-        "movl %0, %%esp; \
-        jmp resume_thread": : "g" (secthread->kernel_esp) : "memory");
   
     kprintf("Type something, it will go through the kernel\n"
         "Type END to halt the CPU or PAGE to request a kmalloc()\n> ");
     
-    while(1) {
-        asm("hlt");
-    }
+    init_task();
 }
 
 void user_input(char *input) {
-    if (strcmp(input, "END") == 0) {
+    if (strcmp(input, "SYNC") == 0) {
+      start_sync_test();
+    } else if (strcmp(input, "END") == 0) {
         kprintf("Stopping the CPU. Bye!\n");
         asm volatile("hlt");
     } else if (strcmp(input, "PAGE") == 0) {

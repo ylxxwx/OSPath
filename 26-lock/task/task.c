@@ -2,32 +2,71 @@
 #include "task.h"
 #include "mem.h"
 
+#define MAX_TASK_ID 16
+
 extern void syscall_fork_exit();
 extern void switch_to_user_mode();
 int cur_avail_id = 0;
 
-int cur_task_id = 1;
-int next_task_id = 0;
-tcb_t tcb[16];
+int cur_task_id = 0;
+tcb_t tcb[MAX_TASK_ID];
 
 extern void resume_thread();
-//static id_pool_t thread_id_pool;
 
-//void init_task_manager() {
-//  id_pool_init(&thread_id_pool, 2048, 32768);
-//}
+static void kernel_main_thread() {
+  //enable_interrupt();
+  // Enter cpu idle.
+  int count = 0;
+  while (true) {
+    count++;
+    if (count %100 == 99) {
+      kprintf("CPU IDLE\n");
+      count = 0;
+    }
+    asm("hlt");
+  }
+}
+
+
+void init_task() {
+  cur_task_id = 0;
+  for (int idx = 0; idx < MAX_TASK_ID; idx++) {
+    tcb[idx].id = idx;
+    tcb[idx].status = TASK_DEAD;
+  }
+  cur_avail_id = 0;
+  
+  tcb_t* main_thread = create_kernel_thread("main", (void*)kernel_main_thread);
+
+  // Kick off!
+  asm volatile (
+   "movl %0, %%esp; \
+    jmp resume_thread": : "g" (main_thread->kernel_esp) : "memory");
+}
+
+int get_next_ready_task() {
+  for (int idx = 1; idx < MAX_TASK_ID; idx++) {
+    tcb_t *task = &tcb[idx];
+    if (task->status == TASK_READY) {
+      return idx;
+    }
+  }
+  return 0;
+}
+
 void schedule_thread_exit() {
 }
+
 
 static void kernel_thread(thread_func* function) {
   function();
   schedule_thread_exit();
 }
 
-tcb_t* init_thread(char* name, thread_func function, u32 priority, uint8 user) {
+tcb_t* create_thread(char* name, thread_func function, u32 priority, uint8 user) {
   u32 id = cur_avail_id++;
   tcb_t *thread = &tcb[id];
-  kmemset(thread, 0, sizeof(tcb_t));
+  kmemset((u8*)thread, 0, sizeof(tcb_t));
 
   thread->id = id;
   if (name != 0) {
@@ -198,4 +237,8 @@ void destroy_thread(tcb_t* thread) {
   //id_pool_free_id(&thread_id_pool, thread->id);
   kfree((void*)thread->kernel_stack);
   //kfree(thread);
+}
+
+tcb_t* create_kernel_thread(char* name, void* function) {
+  return create_thread(name, function, THREAD_DEFAULT_PRIORITY, false);
 }

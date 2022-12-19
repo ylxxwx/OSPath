@@ -25,6 +25,7 @@ static void timer_callback(registers_t *regs) {
             next_task_id = 0;
     }
 */
+/*
     tcb_t *cur = &tcb[cur_task_id];
     tcb_t *next = &tcb[next_task_id];
     cur->ticks++;
@@ -40,6 +41,14 @@ static void timer_callback(registers_t *regs) {
         next->ticks = 0;
         context_switch(cur, next);
     }
+*/
+    tcb_t *cur = &tcb[cur_task_id];
+    cur->ticks++;
+
+    if (cur->ticks > 10) {
+        do_context_switch();
+    }
+    
     tick++;
     UNUSED(regs);
 }
