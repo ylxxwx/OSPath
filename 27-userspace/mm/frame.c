@@ -81,5 +81,5 @@ void map_address(u32 vaddr, int is_kernel, int is_writable) {
     panic("Get page failed");
     return;
   }
-  alloc_frame(page, 1, 1);
+  alloc_frame(page, is_kernel, is_writable);
 }

@@ -7,7 +7,7 @@ MBOOT_HEADER_FLAGS  equ MBOOT_PAGE_ALIGN | MBOOT_MEM_INFO
 MBOOT_CHECKSUM      equ -(MBOOT_HEADER_MAGIC + MBOOT_HEADER_FLAGS)
 
 [BITS 32]                       ; All instructions should be 32-bit.
-
+[GLOBAL example_func]
 [GLOBAL mboot]                  ; Make 'mboot' accessible from C.
 [EXTERN code]                   ; Start of the '.text' section.
 [EXTERN bss]                    ; Start of the .bss section.
@@ -27,9 +27,19 @@ mboot:
 
 [GLOBAL start]                  ; Kernel entry point.
 [EXTERN main]                   ; This is the entry point of our C code
+[EXTERN kprint_hex]
+[EXTERN kprintln]
 
 start:
 call main
 main_infinit_loop:
   hlt
 jmp main_infinit_loop
+
+example_func:
+  ;mov eax, 0x2
+  ;int 0x80
+  ;ret
+  jmp 0x80000000
+  ret;
+

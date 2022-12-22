@@ -31,5 +31,5 @@ resume_thread:
     ret
 
 switch_to_user_mode:
-  add esp, 8
+  add esp, 0x08
   jmp interrupt_exit

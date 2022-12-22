@@ -21,7 +21,7 @@ void main()
     kprintf("Type something, it will go through the kernel\n"
             "Type END to halt the CPU or PAGE to request a kmalloc()\n> ");
     initialise_syscalls();
-    // asm("int $0x80");
+    //__asm__ ("int $0x2");
 
     init_task();
 }

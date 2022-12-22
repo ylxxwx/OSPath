@@ -1,6 +1,8 @@
 ; Defined in isr.c
 [extern isr_handler]
 [extern irq_handler]
+[extern kprint_hex]
+[extern kprintln]
 [global interrupt_exit]
 
 interrupt_exit:
@@ -118,6 +120,7 @@ global isr28
 global isr29
 global isr30
 global isr31
+global irs_sys
 ; IRQs
 global irq0
 global irq1
@@ -138,26 +141,36 @@ global irq15
 
 ; 0: Divide By Zero Exception
 isr0:
+    cli;
     push byte 0
     push byte 0
     jmp isr_common_stub
 
 ; 1: Debug Exception
 isr1:
+    cli;
     push byte 0
     push byte 1
     jmp isr_common_stub
 
 ; 2: Non Maskable Interrupt Exception
 isr2:
+    cli;
     push byte 0
     push byte 2
+    ;push esp
+    ;call kprint_hex
+    ;pop esp
     jmp isr_common_stub
 
 ; 3: Int 3 Exception
 isr3:
+    cli;
     push byte 0
     push byte 3
+    ;push esp
+    ;call kprint_hex
+    ;pop esp
     jmp isr_common_stub
 
 ; 4: INTO Exception
@@ -212,6 +225,11 @@ isr12:
 
 ; 13: General Protection Fault Exception (With Error Code!)
 isr13:
+    push esp 
+    call kprint_hex 
+    call kprintln 
+    pop esp
+
     push byte 13
     jmp isr_common_stub
 
@@ -232,9 +250,9 @@ isr16:
     push byte 16
     jmp isr_common_stub
 
-; 17: Alignment Check Exception
+; 17: Alignment Check Exception(with error code)
 isr17:
-    push byte 0
+    ;push byte 0
     push byte 17
     jmp isr_common_stub
 
@@ -258,7 +276,7 @@ isr20:
 
 ; 21: Reserved
 isr21:
-    push byte 0
+    ;push byte 0
     push byte 21
     jmp isr_common_stub
 
@@ -306,13 +324,13 @@ isr28:
 
 ; 29: Reserved
 isr29:
-    push byte 0
+    ;push byte 0
     push byte 29
     jmp isr_common_stub
 
 ; 30: Reserved
 isr30:
-    push byte 0
+    ;push byte 0
     push byte 30
     jmp isr_common_stub
 
@@ -322,8 +340,14 @@ isr31:
     push byte 31
     jmp isr_common_stub
 
+; 128: system call
+irs_sys:
+    push eax
+    push 0x0080
+    jmp isr_common_stub
 ; IRQ handlers
 irq0:
+    cli;
 	push byte 0
 	push byte 32
 	jmp irq_common_stub

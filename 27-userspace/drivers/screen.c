@@ -247,3 +247,7 @@ void kprintf_args(char* str, void* arg_ptr) {
     i++;
   }
 }
+
+void kprintln() {
+  kprintf("\n");
+}

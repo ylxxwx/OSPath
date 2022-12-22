@@ -7,41 +7,6 @@
 u32 tick = 0;
 
 static void timer_callback(registers_t *regs) {    
-/*
-    if (cur_task_id != 0 && cur_task_id != 1) {
-        kprint("time task id error: ");
-        kprint_hex(cur_task_id);
-        kprint("\n");
-        cur_task_id = 0;
-        next_task_id = 1;
-    }
-    if (cur_task_id == next_task_id) {
-        kprint("time task id error2: ");
-        kprint_hex(cur_task_id);
-        kprint("\n");
-        if (cur_task_id == 0)
-          next_task_id = 1;
-        else
-            next_task_id = 0;
-    }
-*/
-/*
-    tcb_t *cur = &tcb[cur_task_id];
-    tcb_t *next = &tcb[next_task_id];
-    cur->ticks++;
-    //next->ticks = 0;
-    if (cur->ticks > 10) {
-        cur->ticks = 0;
-        //kprintf("switchcontext, cur:%d, next:%d\n", cur_task_id, next_task_id);
-
-        int tmpid = cur_task_id;
-        cur_task_id = next_task_id;
-        next_task_id = tmpid;
-
-        next->ticks = 0;
-        context_switch(cur, next);
-    }
-*/
     tcb_t *cur = &tcb[cur_task_id];
     cur->ticks++;
 

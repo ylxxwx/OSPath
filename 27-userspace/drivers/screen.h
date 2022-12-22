@@ -20,6 +20,7 @@ void kprint_at(char *message, int col, int row);
 void kprint_backspace();
 void kprint_hex(u32);
 void kprint_dec(s32);
+void kprintln();
 void kprintf(char* str, ...);
 
 #endif

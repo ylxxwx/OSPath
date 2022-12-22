@@ -73,6 +73,7 @@ void isr_install() {
     set_idt_gate(45, (u32)irq13);
     set_idt_gate(46, (u32)irq14);
     set_idt_gate(47, (u32)irq15);
+    set_sys_gate(0x80, (u32)irs_sys);
 
     set_idt(); // Load with ASM
 }
@@ -116,14 +117,40 @@ char *exception_messages[] = {
     "Reserved"
 };
 
+void sys_handler(registers_t *r) {
+    kprintf("system call 128:%d\n", r->err_code);
+    switch(r->err_code) {
+        case 2:
+            kprintf("Test system call\n");
+            break;
+        case 3:
+            kprintf("Sleep...");
+            do_context_switch();
+            break;
+        default:
+            kprintf("No implemented sys call:%d\n", r->err_code);
+            break;
+    }
+    return;
+}
+
 void isr_handler(registers_t *r) {
-    char s[3];
-    int_to_ascii(r->int_no, s);
-    kprintf("Got interrupt: %s, %s\n",s,exception_messages[r->int_no]);
+    //char s[3];
+    //int_to_ascii(r->int_no, s);
+    u32 err = r->err_code;
+    if (r->int_no == 128) {
+        sys_handler(r);
+        return;
+    }
+    kprintf("\nGot interrupt: %d, %s, %x\n",r->int_no, exception_messages[r->int_no], r->err_code);
     if (interrupt_handlers[r->int_no] != 0) {
         isr_t handler = interrupt_handlers[r->int_no];
         handler(r);
     }
+    if (r->int_no == 6)
+        panic("interrupt 6, error:%x", r->err_code);
+    if (r->int_no == 13 )
+        panic("interrupt 13, error:%x vs %x", r->err_code, err);
 }
 
 void register_interrupt_handler(u8 n, isr_t handler) {

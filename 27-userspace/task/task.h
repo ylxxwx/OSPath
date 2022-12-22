@@ -74,9 +74,8 @@ void init_task();
 
 // Create a new thread.
 tcb_t* create_thread(char* name, thread_func function, uint32 priority, uint8 user);
-
-uint32 prepare_user_stack(
-    tcb_t* thread, uint32 stack_top, uint32 argc, char** argv, uint32 return_addr);
+tcb_t* create_user_thread(char* name, void* function);
+uint32 prepare_user_stack(tcb_t* thread, uint32 stack_top, uint32 argc, char** argv, uint32 return_addr);
 
 tcb_t* fork_crt_thread();
 

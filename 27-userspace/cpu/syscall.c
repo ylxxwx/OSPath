@@ -25,10 +25,13 @@ void initialise_syscalls()
 
 void example_call() {
     kprintf("syscall interrupt called.\n");
+    asm("hlt");
 }
 
 void syscall_handler(registers_t *regs)
 {
+   kprintf("sys call input:\n");
+
    // Firstly, check if the requested syscall number is valid.
    // The syscall number is found in EAX.
    if (regs->eax >= num_syscalls) {

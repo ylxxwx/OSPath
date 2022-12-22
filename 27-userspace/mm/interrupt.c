@@ -8,6 +8,7 @@
 
 void page_fault(registers_t *regs) {
    u32 faulting_address;
+
    asm ("mov %%cr2, %0": "=r"(faulting_address));
 
    int present = regs->err_code & 0x1;
@@ -16,12 +17,12 @@ void page_fault(registers_t *regs) {
    int reserved = regs->err_code & 0x8;
    int id = regs->err_code & 0x10;
 
-   kprintf("Page fault!(%x | %s | %s | %s) @%x\n", 
+   kprintf("Page fault!(%x | %s | %s | %s | %d) @%x \n", 
       regs->err_code,
       present? "present": "not present",
       rw?"write":"read",
       us?"user mode":"kernel mode",
-      faulting_address
+      id, faulting_address
       );
 
    if (!present) {
@@ -30,7 +31,9 @@ void page_fault(registers_t *regs) {
         panic("Get page failed");
         return;
       }
-      alloc_frame(page, 1, 1);
+      // 0, 1, user, writable, this is temp use.
+      //
+      alloc_frame(page, 0, 1);
       return;
    }
    panic("Page fault");

@@ -4,11 +4,15 @@
 extern void load_gdt(gdt_ptr_t*);
 extern void refresh_tss();
 
+
 static gdt_ptr_t gdt_ptr;
 static gdt_entry_t gdt_entries[7];
 
-static tss_entry_t tss_entry;
+tss_entry_t tss_entry;
 
+static void refresh_gdt() {
+  load_gdt(&gdt_ptr);
+}
 
 static void gdt_set_gate(int32 num, uint32 base, uint32 limit, uint8 access, uint8 flags) {
   gdt_entries[num].limit_low = (limit & 0xFFFF);
@@ -55,15 +59,16 @@ void init_gdt() {
   gdt_set_gate(3, 0, 7, DESC_P | DESC_DPL_0 | DESC_S_DATA | DESC_TYPE_DATA, FLAG_G_4K | FLAG_D_32);
 
   // user code
-  gdt_set_gate(4, 0, 0xBFFFF, DESC_P | DESC_DPL_3 | DESC_S_CODE | DESC_TYPE_CODE, FLAG_G_4K | FLAG_D_32);
+  gdt_set_gate(4, 0, 0xFFFFF, DESC_P | DESC_DPL_3 | DESC_S_CODE | DESC_TYPE_CODE, FLAG_G_4K | FLAG_D_32);
   // user data
-  gdt_set_gate(5, 0, 0xBFFFF, DESC_P | DESC_DPL_3 | DESC_S_DATA | DESC_TYPE_DATA, FLAG_G_4K | FLAG_D_32);
+  gdt_set_gate(5, 0, 0xFFFFF, DESC_P | DESC_DPL_3 | DESC_S_DATA | DESC_TYPE_DATA, FLAG_G_4K | FLAG_D_32);
 
   // tss: 
-  write_tss(6, 0x10, 0x0);
+  write_tss(6, 0x10, 0xA000);
 
-  //refresh_gdt((uint32)&gdt_ptr);
-  /* Don't make the mistake of loading &idt -- always load &idt_reg */
+  refresh_gdt((uint32)&gdt_ptr);
+  /* Don't make the mistake of loading &gdt_ptr -- always load &idt_reg */
+/*
   __asm__ __volatile__(
      "lgdtl (%0)\n"
      "mov %%ax, 0x10\n"
@@ -75,12 +80,26 @@ void init_gdt() {
      "mov %%gs, %%ax\n"
      : 
      : "r" (&gdt_ptr));
-  goto next;
-next:
+*/
+  //goto next;
+//next:
   //__asm__ __volatile__ (
-  //  "ltr 0x30"
+  //  "mov %%ax, 0x30\n"
+  //  "ltr %%ax"
+  //  :
+  //  : 
   //);
-  //refresh_tss();
+  refresh_tss();
+
+  u32 tss_val;
+  u32 *p = &tss_val;
+  __asm__ __volatile__ (
+    "str %0\n"
+    :"=m"(tss_val):
+    : 
+  );
+  kprintf("tss :%x\n", tss_val);
+  kprintf("tss:%x,%x\n", tss_entry.esp0, tss_entry.ss0);
 }
 
 void update_tss_esp(uint32 esp) {
