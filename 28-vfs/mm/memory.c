@@ -22,9 +22,8 @@ void set_addr_mapping(u32 start, u32 end, page_directory_t *pdir) {
         start += 0x1000;
     }
 }
-extern int int_count;
+
 void init_memory() {
-    int_count = 0;
     init_nofree_mem();
 
     u32 mem_end_page = 0x1000000;
