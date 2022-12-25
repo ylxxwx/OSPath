@@ -1,4 +1,6 @@
 #include "ordered_array.h"
+#include "nofreemem.h"
+#include "screen.h"
 #include "mem.h"
 
 s8 standard_lessthan_predicate(type_t a, type_t b) {
@@ -6,14 +8,14 @@ s8 standard_lessthan_predicate(type_t a, type_t b) {
 }
 
 ordered_array_t create_ordered_array(u32 max_size, lessthan_predicate_t less_than) {
-    u32 addr = kmalloc_nofree(max_size * sizeof(type_t));
-    return place_ordered_array(addr, max_size, less_than);
+    u32 addr = (u32)kmalloc_nofree(max_size * sizeof(type_t));
+    return place_ordered_array((void *)addr, max_size, less_than);
 }
 
 ordered_array_t place_ordered_array(void *addr, u32 max_size, lessthan_predicate_t less_than) {
     ordered_array_t ret;
     ret.array = (type_t*) addr;
-    kmemset(ret.array, 0, max_size * sizeof(type_t));
+    kmemset((u8*)ret.array, 0, max_size * sizeof(type_t));
     ret.size = 0;
     ret.max_size = max_size;
     ret.less_than = less_than;

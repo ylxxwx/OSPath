@@ -7,6 +7,7 @@
 #include "frame.h"
 #include "kheap.h"
 
+
 page_directory_t * current_directory = 0;
 
 void set_addr_mapping(u32 start, u32 end, page_directory_t *pdir) {

@@ -3,6 +3,7 @@
 #include "mem.h"
 #include "gdt.h"
 #include "frame.h"
+#include "schedule.h"
 
 #define MAX_TASK_ID 16
 extern tss_entry_t tss_entry;
@@ -16,6 +17,10 @@ tcb_t tcb[MAX_TASK_ID];
 
 extern void resume_thread();
 
+void mov_task_ready(int task_id) {
+  tcb[task_id].status = TASK_READY;
+}
+
 static void kernel_main_thread() {
   //enable_interrupt();
   // Enter cpu idle.
@@ -23,8 +28,8 @@ static void kernel_main_thread() {
   while (true) {
     count++;
     if (count %100 == 99) {
-      kprintf("CPU IDLE\n");
-      kprintf("task state: %d-%d-%d-%d\n", tcb[0].status, tcb[1].status, tcb[2].status, tcb[3].status);
+      //kprintf("CPU IDLE\n");
+      //kprintf("task state: %d-%d-%d-%d\n", tcb[0].status, tcb[1].status, tcb[2].status, tcb[3].status);
       count = 0;
     }
     asm("hlt");
@@ -42,10 +47,11 @@ void copy_func() {
   return;
 }
 void user_func() {
-  u8 *src = (u8*)copy_func;
-  u8 *dst = (u8*)0x80000000;
-  kmemcpy(dst, src, 100);
-  example_func();
+  //u8 *src = (u8*)copy_func;
+  //u8 *dst = (u8*)0x80000000;
+  //kmemcpy(dst, src, 100);
+  //example_func();
+  copy_func();
 }
 
 void init_task() {
@@ -61,7 +67,6 @@ void init_task() {
   tcb_t* user_thread = create_user_thread("main", (void*)user_func);
   user_thread->status = TASK_READY;
   //kprintf("task Create state: %d-%d-%d-%d\n", tcb[0].status, tcb[1].status, tcb[2].status, tcb[3].status);
-  // Kick off!
   asm volatile (
    "movl %0, %%esp; \
     jmp resume_thread": : "g" (main_thread->kernel_esp) : "memory");
@@ -83,18 +88,6 @@ void schedule_thread_exit() {
 static void kernel_thread(thread_func* function) {
   function();
   schedule_thread_exit();
-}
-
-static void return_usermode() {
-  kprintf("\n kernel try return usermode .....\n");
-  u32 esp_val = 0;
-  esp_val = get_ebp();
-
-  kprintf("return to use mod esp:%x\n", esp_val);
-
-  switch_to_user_mode();
-
-  user_func();
 }
 
 tcb_t* create_thread(char* name, thread_func function, u32 priority, uint8 user) {
@@ -166,7 +159,7 @@ tcb_t* create_thread(char* name, thread_func function, u32 priority, uint8 user)
     interrupt_stack->eax = 0;
 
     // user-level code env
-    interrupt_stack->eip = function;//(uint32)(0xB0000000 - PAGE_SIZE + 0x100); //function;//
+    interrupt_stack->eip = (u32)function;//(uint32)(0xB0000000 - PAGE_SIZE + 0x100); //function;//
     interrupt_stack->cs = SELECTOR_U_CODE;
     interrupt_stack->eflags = EFLAGS_IOPL_0 | EFLAGS_MBS | EFLAGS_IF_1;
 

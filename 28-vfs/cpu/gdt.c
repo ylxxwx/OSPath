@@ -25,7 +25,7 @@ static void gdt_set_gate(int32 num, uint32 base, uint32 limit, uint8 access, uin
 }
 
 static void write_tss(uint32 num, uint16 ss0, uint32 esp0) {
-  kmemset(&tss_entry, 0, sizeof(tss_entry_t));
+  kmemset((u8*)&tss_entry, 0, sizeof(tss_entry_t));
   tss_entry.ss0 = ss0;
   tss_entry.esp0 = esp0;
   tss_entry.iomap_base = sizeof(tss_entry_t);
@@ -98,8 +98,8 @@ void init_gdt() {
     :"=m"(tss_val):
     : 
   );
-  kprintf("tss :%x\n", tss_val);
-  kprintf("tss:%x,%x\n", tss_entry.esp0, tss_entry.ss0);
+  //kprintf("tss :%x\n", tss_val);
+  //kprintf("tss:%x,%x\n", tss_entry.esp0, tss_entry.ss0);
 }
 
 void update_tss_esp(uint32 esp) {

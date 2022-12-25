@@ -72,6 +72,8 @@ extern tcb_t tcb[16];
 // ****************************************************************************
 void init_task();
 
+void mov_task_ready(int task_id);
+
 // Create a new thread.
 tcb_t* create_thread(char* name, thread_func function, uint32 priority, uint8 user);
 tcb_t* create_user_thread(char* name, void* function);
@@ -82,5 +84,5 @@ tcb_t* fork_crt_thread();
 void destroy_thread(tcb_t* thread);
 
 tcb_t* create_kernel_thread(char* name, void* function);
-
+int get_next_ready_task();
 #endif

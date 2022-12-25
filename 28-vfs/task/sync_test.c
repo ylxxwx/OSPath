@@ -1,5 +1,6 @@
 #include "yieldlock.h"
 #include "task.h"
+#include "screen.h"
 
 yieldlock_t count_lock;
 

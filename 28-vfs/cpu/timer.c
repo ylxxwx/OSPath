@@ -3,10 +3,12 @@
 #include "ports.h"
 #include "function.h"
 #include "task.h"
+#include "schedule.h"
 
 u32 tick = 0;
 
 static void timer_callback(registers_t *regs) {    
+    //kprintf("Timer interrupt.\n");
     tcb_t *cur = &tcb[cur_task_id];
     cur->ticks++;
 

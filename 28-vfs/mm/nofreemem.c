@@ -1,4 +1,5 @@
 #include "nofreemem.h"
+#include "screen.h"
 
 /* This should be computed at link time, but a hardcoded
  * value is fine for now. Remember that our kernel starts

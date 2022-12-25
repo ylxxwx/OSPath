@@ -7,11 +7,11 @@ u32  kmalloc(u32 size) {
 }
 
 u32  kmalloc_a(u32 size, int align) {
-    return dynamic_heap_alloc(size, 1);
+    return (u32)dynamic_heap_alloc(size, 1);
 }
 
 u32  kmalloc_ap(u32 size, int align, u32 *phy) {
-    return dynamic_heap_alloc(size, 1);
+    return (u32)dynamic_heap_alloc(size, 1);
 }
 
 void kfree(u8* addr) {

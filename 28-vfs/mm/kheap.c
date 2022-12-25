@@ -1,5 +1,6 @@
 #include "kheap.h"
 #include "screen.h"
+#include "nofreemem.h"
 #include "ordered_array.h"
 
 // 24 C 1100  26
@@ -37,8 +38,8 @@ static s8 header_t_less_than(void *a, void *b) {
 }
 
 heap_t *create_heap(u32 start, u32 end, u32 max, u8 supervisor, u8 readonly) {
-    heap_t *heap = (header_t*) kmalloc_nofree(sizeof(heap_t));
-    void *buf = kmalloc_nofree(sizeof(u32) *KHEAP_INDEX_SIZE);
+    heap_t *heap = (heap_t*) kmalloc_nofree(sizeof(heap_t));
+    void *buf = (void *)kmalloc_nofree(sizeof(u32) *KHEAP_INDEX_SIZE);
     if (buf == 0) {
         kprintf("kmalloc memory for heap failed.\n");
         return 0;

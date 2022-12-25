@@ -1,4 +1,5 @@
 #include "yieldlock.h"
+#include "schedule.h"
 
 extern uint32 atomic_exchange(volatile uint32* dst, uint32 src);
 

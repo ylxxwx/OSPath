@@ -198,12 +198,6 @@ int get_offset_col(int offset) { return (offset - (get_offset_row(offset)*2*MAX_
 
 extern void *get_ebp();
 
-void kprintf(char* str, ...) {
-  void* ebp = get_ebp();
-  void* arg_ptr = ebp + 12;
-  kprintf_args(str, arg_ptr);
-}
-
 void kprintf_args(char* str, void* arg_ptr) {
   int i = 0;
   while (1) {
@@ -246,6 +240,12 @@ void kprintf_args(char* str, void* arg_ptr) {
 
     i++;
   }
+}
+
+void kprintf(char* str, ...) {
+  void* ebp = get_ebp();
+  void* arg_ptr = ebp + 12;
+  kprintf_args(str, arg_ptr);
 }
 
 void kprintln() {

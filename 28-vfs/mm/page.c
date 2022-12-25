@@ -5,6 +5,7 @@
 #include "screen.h"
 #include "mem.h"
 #include "frame.h"
+#include "kheap.h"
 
 u32  vaddr_to_paddr(u32 address) {
     u32 pageDirIdx = ((address>>22) & 0x3FF);
@@ -49,7 +50,7 @@ page_t *get_page(u32 address, int make, page_directory_t *dir)
         dir->tables[table_idx] = (page_table_t *)kmalloc_ap_nofree(sizeof(page_table_t), 1, &tmp);
         if (dir->tables[table_idx] == 0 && kheap_ready()) {
             dir->tables[table_idx] = (page_table_t *)kmalloc_a(sizeof(page_table_t), 1);
-            tmp = vaddr_to_paddr(dir->tables[table_idx]);
+            tmp = vaddr_to_paddr((u32)dir->tables[table_idx]);
         }
         if (dir->tables[table_idx] == 0)
             return 0;

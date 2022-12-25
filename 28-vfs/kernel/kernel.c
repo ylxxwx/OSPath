@@ -5,9 +5,13 @@
 #include "gdt.h"
 #include "nofreemem.h"
 #include "memory.h"
+#include "mem.h"
 #include "task.h"
+#include "hd_irs.h"
+#include "syscall.h"
+#include "sync_test.h"
 
-u32 *addr = 0xD0000000;
+u32 *addr = (u32 *)0xD0000000;
 u32 size = 0x800000;
 
 void main()
@@ -20,7 +24,8 @@ void main()
 
     kprintf("Type something, it will go through the kernel\n"
             "Type END to halt the CPU or PAGE to request a kmalloc()\n> ");
-    initialise_syscalls();
+    init_syscalls();
+    init_hds();
     //__asm__ ("int $0x2");
 
     init_task();
@@ -45,12 +50,12 @@ void user_input(char *input)
     {
         void *addr = 0;
         int tries = 3;
-        addr = kmalloc(1024 * 4);
+        addr = (void *)kmalloc(1024 * 4);
         while (tries >= 0)
         {
             // use memory all: 1024*1024-20
             // last part: 1024 and 1023*1024-40
-            addr = kmalloc(1024 * 4);
+            addr = (void *)kmalloc(1024 * 4);
             if (addr == 0)
             {
                 kprintf("Alloc memory failed.\n");
@@ -58,7 +63,7 @@ void user_input(char *input)
             }
             kprintf("allocated: %x\n", addr);
 
-            u32 *addr1 = kmalloc(1024 * 4);
+            u32 *addr1 = (u32*)kmalloc(1024 * 4);
             if (addr1 == 0)
             {
                 kprintf("Alloc memory failed.\n");
@@ -67,24 +72,24 @@ void user_input(char *input)
 
             kprintf("allocated: %x\n", addr);
 
-            kfree(addr);
-            kfree(addr1);
+            kfree((u8*)addr);
+            kfree((u8*)addr1);
             tries--;
         }
     }
     else if (strcmp(input, "TEST") == 0)
     {
-        u32 a1 = kmalloc_a(1024, 1);
+        u32 a1 = (u32)kmalloc_a(1024, 1);
         kprintf("allocated: %x\n", a1);
 
-        u32 a2 = kmalloc_a(1024, 1);
+        u32 a2 = (u32)kmalloc_a(1024, 1);
         kprintf("allocated: %x\n", a2);
-        kfree(a1);
-        kfree(a2);
+        kfree((u8*)a1);
+        kfree((u8*)a2);
 
-        u32 a3 = kmalloc_a(1024, 1);
+        u32 a3 = (u32)kmalloc_a(1024, 1);
         kprintf("allocated: %x\n", a3);
-        kfree(a3);
+        kfree((u8*)a3);
     }
     else if (strcmp(input, "INT") == 0)
     {
@@ -93,7 +98,7 @@ void user_input(char *input)
             kprintf("trigger a page interruption.\n");
             // int *addr = (int *)(0xEFFFFF00);
             *addr = 1;
-            addr = (u32)addr + size;
+            addr = (u32*)((u32)addr + size);
         }
     }
     kprintf("You said: %s\n", input);
