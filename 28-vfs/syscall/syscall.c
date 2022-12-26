@@ -10,6 +10,10 @@
 typedef s32 (*sys_func) (registers_t *regs);
 
 static s32 syscall_handler(registers_t *regs);
+s32 ksys_pwd(registers_t *regs) {
+    vfs_pwd();
+    return 9;
+}
 
 s32 ksys_read_file(registers_t *regs) {
     char *fn = (char *)regs->ebx;
@@ -61,7 +65,8 @@ s32 mount_hd(registers_t *regs) {
 }
 
 s32 ksys_ls(registers_t *regs) {
-    ls_cur_dir();
+    char *dir = (char *)(regs->ebx);
+    ls_dir(dir);
     return 10;
 }
 
@@ -76,6 +81,7 @@ static void *syscalls[] =
    &ksys_ls,
    &ksys_cd_dir,
    &ksys_read_file,
+   &ksys_pwd,
 };
 
 u32 num_syscalls = 3;

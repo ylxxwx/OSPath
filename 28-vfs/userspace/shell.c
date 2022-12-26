@@ -14,6 +14,7 @@
 #define CMD_TRACEON     6
 #define CMD_TRACEOFF    7
 #define CMD_INVALID     8
+#define CMD_PWD         9
 
 void execCmd(int cmd, int argc, char argv[][80]);
 
@@ -52,20 +53,6 @@ void help(int cmd) {
     }
 }
 
-int split(char dst[][80], char* str)
-{
-    int n = 0;
-    char *result = 0;
-    result = strtok(str, " ");
-    int count = 5;
-    //output("split:%s\n", (u32)result);
-    while( result != 0 && *result != 0 && count-- > 0) {
-        kstrcpy(dst[n++], result);
-        result = strtok(0, " ");
-    }
-    return n;
-}
-
 const int str_2_cmd(char *str) {
     int cmd = CMD_INVALID;
     if (0 == strcmp("cls", str)) {
@@ -84,6 +71,8 @@ const int str_2_cmd(char *str) {
         cmd = CMD_TRACEON;
     } else if (0 == strcmp("traceoff", str)) {
         cmd = CMD_TRACEOFF;
+    } else if (0 == strcmp("pwd", str)) {
+        cmd = CMD_PWD;
     }
     return cmd;
 }
@@ -104,12 +93,11 @@ void shell() {
     
     char str[4][80];
     kmemset((u8*)str, 0, 4*80);
-    int num = split(str, buf);
+    int num = split(str, buf, " ");
     if (num == 0) {
       output("%s, split 0.\n", buf);
       continue;
-    }
-    
+    }    
     int cmd = str_2_cmd(str[0]);
     execCmd(cmd, num, str);
   }
@@ -120,14 +108,18 @@ void execCmd(int cmd, int argc, char argv[][80]){
     case CMD_CLS:
         std_clear_screen();
         break;
-    case CMD_LS: 
-        sys_ls();
+    case CMD_LS:
+        if (argc == 1) {
+          argv[1][0] = '.';
+          argv[1][1] = '\0';
+        }
+        sys_ls(argv[1]);
         break;
     case CMD_CD: {
         if (argc == 2) {
             sys_cd_dir(argv[1]);
         } else {
-            output("input num:%d, expect 2.\n", argc);    
+            output("input num:%d, expect 2.\n", argc);
         }
         break;
     }
@@ -154,6 +146,10 @@ void execCmd(int cmd, int argc, char argv[][80]){
     case CMD_HELP: {
         help(CMD_INVALID);
         break;
+    }
+    case CMD_PWD: {
+      sys_pwd();
+      break;
     }
     case CMD_INVALID:
     case CMD_EXIT: {

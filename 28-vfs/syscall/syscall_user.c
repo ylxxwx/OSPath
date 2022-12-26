@@ -61,14 +61,14 @@ s32 sys_clear_screen() {
     return ret;
 }
 
-s32 sys_ls() {
+s32 sys_ls(char *dir) {
     s32 ret = 0;
     __asm__ __volatile__(
         "movl $6, %%eax;"
         "int $0x80;"
         "mov %%eax, %0;"
         : "=m"(ret)
-        :);
+        : "b"(dir));
     return ret;
 }
 
@@ -97,3 +97,15 @@ s32 sys_read_file(char *fn, char *buf) {
         : "b"(fn),"c"(buf));
     return ret;
 }
+
+s32 sys_pwd() {
+    s32 ret = 0;
+    __asm__ __volatile__(
+        "movl $9, %%eax;"
+        "int $0x80;"
+        "mov %%eax, %0;"
+        : "=m"(ret)
+        :);
+    return ret;
+}
+

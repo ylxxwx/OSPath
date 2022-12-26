@@ -27,6 +27,40 @@ typedef struct vfs_node{
 vfs_node_t root;
 static vfs_node_t *cur = 0;
 
+static vfs_node_t *path_to_node(char *path) {
+    vfs_node_t *target = cur;
+    if (path[0] == '/')
+        target = &root;
+
+    char path_stack[16][80];
+    kmemset((u8*)path_stack, 0, 16*80);
+    int num = split(path_stack, path, "/");
+    for (int idx = 0; idx < num; idx++) {
+        if (0 == strcmp("..", path_stack[idx])) {
+            target = target->parent;
+        } else if (0 == strcmp(".", path_stack[idx])) {
+            continue;
+        } else {
+            bool found = 0;
+            for (int i = 0; i < 64; i++) {
+                if (target->childs[i] == 0)
+                    continue;
+                if (0==cmp_str(target->childs[i]->name, path_stack[idx], 64)) {
+                    if (target->childs[i]->synced == 0) {
+                        sync_node(target->childs[i]);
+                    }
+                    target = target->childs[i];
+                    found = 1;
+                    break;
+                }
+            }
+            if (found == 0)
+                return 0;
+        }
+    }
+    return target;
+}
+
 int read_inode_file(vfs_node_t *node, char *buf) {
     trace("read_inode_file, %d\n", node->inode_id);
     disk_t *disk = &node->disk;
@@ -87,7 +121,7 @@ int mount_root(disk_t *disk) {
     }
     cur = &root;
     sync_node(cur);
-    ls_cur_dir();
+    ls_dir(".");
 }
 
 int mount(disk_t *disk, char *path) {
@@ -98,47 +132,36 @@ int umount(disk_t *disk) {
     return 0;
 }
 
-void ls_cur_dir() {
-    trace("enter ls_cur_dir\n");
+void ls_dir(char *dir) {
+    vfs_node_t *target = cur;
     if (cur ==0) {
         trace("no disk mounted.\n");
         return;
     }
-    if (!cur->synced) {
-        sync_node(cur);
+
+    target = path_to_node(dir);
+    if (target == 0)
+        return;
+
+    if (!target->synced) {
+        sync_node(target);
     }
     for (int idx = 0; idx < 64; idx++) {
-        if (cur->childs[idx] != 0) {
-            stdoutput("%s  ", (cur->childs[idx])->name);
+        if (target->childs[idx] != 0) {
+            stdoutput("%s  ", (target->childs[idx])->name);
         }
     }
     stdoutput("\n");
 }
 
 void cd_dir(char *path) {
-    if (0==cmp_str(path, "..", 2)) {
-        cur = cur->parent;
+    vfs_node_t *target = path_to_node(path);
+    if (!target->is_dir) {
+        trace("can't cd to a file\n");
         return;
     }
 
-    for (int idx = 0; idx < 64; idx++) {
-        if (cur->childs[idx] == 0)
-            continue;
-        if (0==cmp_str(cur->childs[idx]->name, path, 64)) {
-            if (cur->childs[idx]->synced == 0) {
-                sync_node(cur->childs[idx]);
-                trace("sync done\n");
-            }
-            if (cur->childs[idx]->is_dir) {
-                cur = cur->childs[idx];
-                break;
-            }
-            else {
-                trace("It is a file.\n");
-                break;
-            }
-        }
-    }
+    cur = target;  
 }
 
 void more_file(char *path) {
@@ -146,27 +169,37 @@ void more_file(char *path) {
 }
 
 void vfs_read_file(char *path, u8* buf) {
-    if ( path[0]=='.' ) {
-        trace("DIR ./..\n");
+    vfs_node_t *target = path_to_node(path);
+    if (target->is_dir) {
+        trace("can't read DIR\n");
+        return;
+    }
+    int nz = read_inode_file(target, buf);
+}
+
+void vfs_pwd() {
+    if (cur == 0) {
+        kprintf("no disk mounted. \n");
+        return;
+    }
+    if (cur == &root) {
+        kprintf("/\n");
         return;
     }
 
-    for (int idx = 0; idx < 64; idx++) {
-        if (cur->childs[idx] == 0)
-            continue;
-        if (0==cmp_str(cur->childs[idx]->name, path, 64)) {
-            if (cur->childs[idx]->synced == 0) {
-                sync_node(cur->childs[idx]);
-                trace("more file sync node done\n");
-            }
-            if (cur->childs[idx]->is_dir) {
-                trace("DIR ./..\n");
-                return;
-            }
-            //char buf[1024] = {0};
-            int nz = read_inode_file(cur->childs[idx], buf);
-            //trace("file:%s, size:%d\n", path, nz);
-            //stdoutput("%s", buf);
-        }
+    vfs_node_t *node_stack[64];
+    int idx = 0;
+    vfs_node_t *vfs_node = cur;
+
+    do {
+       node_stack[idx] = vfs_node;
+       idx++;
+       vfs_node = vfs_node->parent;
+    } while(vfs_node != &root);
+
+    while(idx > 0) {
+        idx--;
+        kprintf("/%s", node_stack[idx]->name);
     }
+    kprintln();
 }

@@ -153,3 +153,15 @@ char *strtok(char *s1, const char *s2) {
     ssave = send;
     return (sbegin);
 }
+
+int split(char dst[][80], char* str, char *spl)
+{
+    int n = 0;
+    char *result = 0;
+    result = strtok(str, spl);
+    while( result != 0 && *result != 0) {
+        kstrcpy(dst[n++], result);
+        result = strtok(0, spl);
+    }
+    return n;
+}

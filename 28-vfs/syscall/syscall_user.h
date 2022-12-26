@@ -10,7 +10,8 @@ s32 sys_mount_root(u32 major, u32 min, u32 partition);
 s32 sys_print(char* fmt, void *arg);
 s32 sys_std_input(char *buf);
 s32 sys_clear_screen();
-s32 sys_ls();
+s32 sys_ls(char *dir);
 s32 sys_cd_dir(char *dir);
 s32 sys_read_file(char *fn, char *buf);
+s32 sys_pwd();
 #endif // _SYSCALL_USER_H_
