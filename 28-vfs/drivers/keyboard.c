@@ -7,6 +7,8 @@
 #include "kernel.h"
 #include "task.h"
 #include "schedule.h"
+#include "mem.h"
+#include "inter.h"
 
 #define BACKSPACE 0x0E
 #define ENTER 0x1C

@@ -1,6 +1,3 @@
-// syscall.c -- Defines the implementation of a system call system.
-// Written for JamesM's kernel development tutorials.
-
 #include "syscall.h"
 #include "isr.h"
 #include "harddisk.h"
@@ -14,7 +11,7 @@ typedef s32 (*sys_func) (registers_t *regs);
 static s32 syscall_handler(registers_t *regs);
 
 s32 sys_kstd_input(registers_t *regs) {
-    u8 * buf = regs->ebx;
+    u8 * buf = (u8 *)regs->ebx;
     return kb_read(buf);
 }
 
@@ -72,5 +69,5 @@ s32 sys_handler(registers_t *r) {
 void init_syscalls()
 {
    // Register our syscall handler.
-   register_interrupt_handler (0x80, &sys_handler);
+   // register_interrupt_handler (0x80, &sys_handler);
 }

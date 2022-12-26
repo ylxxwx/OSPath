@@ -1,6 +1,7 @@
 #include "shell.h"
 #include "io.h"
 #include "mem.h"
+#include "string.h"
 
 void shell() {
   u8 buf[256];
@@ -10,7 +11,7 @@ void shell() {
     int ret = input(buf);
     //int ret = sleep();
     output("input: %s\n", buf);
-    if (0 == strcmp(buf, "CLEAR", 5)) {
+    if (0 == strcmp("CLEAR", buf)) {
         std_clear_screen();
     }
     //kprintf("ret val of sleep:%d\n", ret);
