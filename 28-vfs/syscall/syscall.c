@@ -11,6 +11,19 @@ typedef s32 (*sys_func) (registers_t *regs);
 
 static s32 syscall_handler(registers_t *regs);
 
+s32 ksys_read_file(registers_t *regs) {
+    char *fn = (char *)regs->ebx;
+    void *buf = (void *)regs->ecx;
+    vfs_read_file(fn, buf);
+    return 8;
+}
+
+s32 ksys_cd_dir(registers_t *regs) {
+    u8 * dir = (u8 *)regs->ebx;
+    cd_dir(dir);
+    return 7;
+}
+
 s32 sys_kstd_input(registers_t *regs) {
     u8 * buf = (u8 *)regs->ebx;
     return kb_read(buf);
@@ -61,6 +74,8 @@ static void *syscalls[] =
    &sys_kstd_input,
    &sys_kstd_clear_screen,
    &ksys_ls,
+   &ksys_cd_dir,
+   &ksys_read_file,
 };
 
 u32 num_syscalls = 3;

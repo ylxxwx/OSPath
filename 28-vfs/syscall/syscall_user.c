@@ -71,3 +71,30 @@ s32 sys_ls() {
         :);
     return ret;
 }
+
+s32 sys_cd_dir(char *dir) {
+    s32 ret = 0;
+    __asm__ __volatile__(
+        "push %%ebx;"
+        "movl $7, %%eax;"
+        "int $0x80;"
+        "pop %%ebx;"
+        "mov %%eax, %0;"
+        : "=m"(ret)
+        : "b"(dir));
+    return ret;
+}
+
+s32 sys_read_file(char *fn, char *buf) {
+    s32 ret = 0;
+    __asm__ __volatile__(
+        "push %%ebx;"
+        "movl $8, %%eax;"
+        "int $0x80;"
+        "pop %%ebx;"
+        "mov %%eax, %0;"
+        : "=m"(ret)
+        : "b"(fn),"c"(buf));
+    return ret;
+}
+

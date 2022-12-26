@@ -95,7 +95,6 @@ static void sleep() {
 int read_sector(disk_t *disk, int sec_id, int num, u8* buf) {
     for (int idx = 0; idx < num; idx++) {
         hd_read_req_one_sector(sec_id + idx, buf += (idx * 512));
-        //sleep();
     }
     return num;
 }

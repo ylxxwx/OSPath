@@ -142,6 +142,10 @@ void cd_dir(char *path) {
 }
 
 void more_file(char *path) {
+
+}
+
+void vfs_read_file(char *path, u8* buf) {
     if ( path[0]=='.' ) {
         trace("DIR ./..\n");
         return;
@@ -159,10 +163,10 @@ void more_file(char *path) {
                 trace("DIR ./..\n");
                 return;
             }
-            char buf[1024] = {0};
+            //char buf[1024] = {0};
             int nz = read_inode_file(cur->childs[idx], buf);
-            trace("file:%s, size:%d\n", path, nz);
-            stdoutput("%s", buf);
+            //trace("file:%s, size:%d\n", path, nz);
+            //stdoutput("%s", buf);
         }
     }
 }

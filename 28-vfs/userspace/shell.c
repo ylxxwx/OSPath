@@ -59,11 +59,8 @@ int split(char dst[][80], char* str)
     result = strtok(str, " ");
     int count = 5;
     //output("split:%s\n", (u32)result);
-    while( result != 0 && *result != 0 && count-- > 0)
-    {
-        //n++;
+    while( result != 0 && *result != 0 && count-- > 0) {
         kstrcpy(dst[n++], result);
-        output("split:%s:end\n", (u32)result);
         result = strtok(0, " ");
     }
     return n;
@@ -101,10 +98,9 @@ void shell() {
     kmemset((u8 *)buf, 0, 1024);
     int ret = input(buf);
     
-    //    if (ret == 0 || strlen(ret) == 0|| buf[0]== '\n') {
-    //        continue;
-    //    }
-    output("input:%s:end\n", buf);
+    if (strlen(buf) == 0|| buf[0]== '\n') {
+      continue;
+    }
     
     char str[4][80];
     kmemset((u8*)str, 0, 4*80);
@@ -114,22 +110,8 @@ void shell() {
       continue;
     }
     
-    //if (num > 0)
-    //  str[num - 1][strlen(str[num - 1])-1] = 0;
-    
     int cmd = str_2_cmd(str[0]);
     execCmd(cmd, num, str);
-    //output("kward num:%d\n", num);
-    //for (int idx = 0; idx < num; idx++) {
-    //  output("kw:%s:end\n", str[idx]);
-    //}
-    
-    //output("input: %s\n", buf);
-    //if (0 == strcmp("CLEAR", buf)) {
-    //  std_clear_screen();
-    //} else if (0 == strcmp("ls", buf)) {
-    //  sys_ls();
-    //}
   }
 }
 
@@ -143,7 +125,7 @@ void execCmd(int cmd, int argc, char argv[][80]){
         break;
     case CMD_CD: {
         if (argc == 2) {
-            //cd_dir(argv[1]);
+            sys_cd_dir(argv[1]);
         } else {
             output("input num:%d, expect 2.\n", argc);    
         }
@@ -154,7 +136,10 @@ void execCmd(int cmd, int argc, char argv[][80]){
             output("input num:%d, expect 2.\n", argc);
             return;
         } else {
-            //more_file(argv[1]);
+            u8 buf[512];
+            kmemset(buf, 0, 512);
+            sys_read_file(argv[1], buf);
+            output(buf);
         }
         break;
     }
