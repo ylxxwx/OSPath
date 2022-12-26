@@ -16,33 +16,33 @@ typedef struct {
     int response;
 } hd_req_t;
 
-hd_req_t *cur = 0;
+static hd_req_t *cur_hd_req = 0;
 
 void free_cur_req() {
-    if (cur) {
-        kfree(cur->buf);
+    if (cur_hd_req) {
+        kfree(cur_hd_req->buf);
     }
-    cur = 0;
+    cur_hd_req = 0;
 }
 
 u32 get_hd_cur_words_to_read() {
-    if (cur) {
-       return cur->num * 256;
+    if (cur_hd_req) {
+       return cur_hd_req->num * 256;
     }
     return 0;
 }
 
 u8 *get_hd_cur_buffer() {
-    if (cur)
-       return cur->buf;
+    if (cur_hd_req)
+       return cur_hd_req->buf;
     return 0;
 }
 
 void hd_read_done(u8 status) {
-    if (cur) {
-        cur->status = status;
-        cur->response = 1;
-        mov_task_ready(cur->task_id);
+    if (cur_hd_req) {
+        cur_hd_req->status = status;
+        cur_hd_req->response = 1;
+        mov_task_ready(cur_hd_req->task_id);
     }
 }
 
@@ -77,17 +77,25 @@ void hd_read_req_one_sector(int sec_id, u8 * buf) {
     req->num = 1;
     req->response = 0;
     
-    cur = req;
+    cur_hd_req = req;
     read_disk(sec_id, 1);
     mov_task_wait(cur_task_id);
-    while(cur->response == 0) {
+    while(cur_hd_req->response == 0) {
         do_context_switch();
     }
     enable_interrupt();
 }
 
+static void sleep() {
+    int count = 1;
+    while(count-->0)
+      do_context_switch();
+}
+
 int read_sector(disk_t *disk, int sec_id, int num, u8* buf) {
     for (int idx = 0; idx < num; idx++) {
         hd_read_req_one_sector(sec_id + idx, buf += (idx * 512));
+        //sleep();
     }
+    return num;
 }

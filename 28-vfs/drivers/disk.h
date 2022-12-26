@@ -1,6 +1,8 @@
 #ifndef _HD_H_
 #define _HD_H_
 
+#include "type.h"
+
 #define HD_REG_DATA 0x1f0
 
 #define HD_REG_CMD_1 0x01f2
@@ -17,7 +19,7 @@ typedef struct {
   u8 partition;
 } disk_t;
 
-void show_disk(char *prefix, disk_t *disk);
+//void show_disk(char *prefix, disk_t *disk);
 int read_sector(disk_t *disk, int sector_id, int num, u8 *buf);
 
 u32 get_hd_cur_words_to_read();

@@ -1,9 +1,9 @@
 #include "type.h"
 #include "harddisk.h"
 #include "disk.h"
-#include "mem.h"
+#include "fsmem.h"
 #include "screen.h"
-
+#if 0
 typedef struct tag_par{
     u8 boot_signature;
     u8 start_head;
@@ -197,4 +197,4 @@ void init_hd() {
     show_super((super_block_t*)super_buffer);
     kfree(super_buffer);
 }
-
+#endif //

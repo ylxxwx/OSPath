@@ -5,6 +5,7 @@
 #include "schedule.h"
 #include "screen.h"
 #include "keyboard.h"
+#include "vfs.h"
 
 typedef s32 (*sys_func) (registers_t *regs);
 
@@ -37,8 +38,18 @@ s32 sys_kstd_clear_screen(registers_t *regs) {
 s32 mount_hd(registers_t *regs) {
     kprintf("sys mount maj:%d, min:%d, part:%d\n", regs->ebx, regs->ecx, regs->edx);
     
-    init_hd();
+    //init_hd();
+    disk_t t;
+    t.major = 1;
+    t.minor = 0;
+    t.partition = 0;
+    mount_root(&t);
     return 9;
+}
+
+s32 ksys_ls(registers_t *regs) {
+    ls_cur_dir();
+    return 10;
 }
 
 static void *syscalls[] =
@@ -49,6 +60,7 @@ static void *syscalls[] =
    &sys_kprint,
    &sys_kstd_input,
    &sys_kstd_clear_screen,
+   &ksys_ls,
 };
 
 u32 num_syscalls = 3;

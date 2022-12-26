@@ -153,7 +153,7 @@ void *heap_alloc(u32 size, u8 page_align, heap_t *heap) {
 }
 
 void heap_free(void* p, heap_t *heap) {
-    if (p == 0)
+/*    if (p == 0)
         return;
 
     header_t *header = (header_t *)((u32)p - KHEAP_HEAD_SIZE);
@@ -219,6 +219,7 @@ void heap_free(void* p, heap_t *heap) {
     if (do_add == 1) {
         insert_ordered_array((void*)header, &heap->index);
     }
+*/
 }
 
 heap_t *init_kheap() {

@@ -11,7 +11,7 @@ s32 sleep() {
     return ret;
 }
 
-s32 mount_root(u32 major, u32 min, u32 partition) {
+s32 user_mount_root(u32 major, u32 min, u32 partition) {
     s32 ret = 0;
     __asm__ __volatile__(
         "push %%ebx;"
@@ -54,6 +54,17 @@ s32 sys_clear_screen() {
     s32 ret = 0;
     __asm__ __volatile__(
         "movl $5, %%eax;"
+        "int $0x80;"
+        "mov %%eax, %0;"
+        : "=m"(ret)
+        :);
+    return ret;
+}
+
+s32 sys_ls() {
+    s32 ret = 0;
+    __asm__ __volatile__(
+        "movl $6, %%eax;"
         "int $0x80;"
         "mov %%eax, %0;"
         : "=m"(ret)
