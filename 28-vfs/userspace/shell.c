@@ -89,7 +89,7 @@ const int str_2_cmd(char *str) {
 }
 
 void shell() {
-  s32 ret = user_mount_root(1,0,0);
+  s32 ret = sys_mount_root(1,0,0);
   output("mount root hda ret:%d\n", ret);
 
   u8 buf[1024];

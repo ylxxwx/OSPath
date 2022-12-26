@@ -1,6 +1,6 @@
 #include "syscall_user.h"
 
-s32 sleep() {
+s32 sys_sleep() {
     s32 ret = 0;
     __asm__ __volatile__(
         "movl $0, %%eax;"
@@ -11,7 +11,7 @@ s32 sleep() {
     return ret;
 }
 
-s32 user_mount_root(u32 major, u32 min, u32 partition) {
+s32 sys_mount_root(u32 major, u32 min, u32 partition) {
     s32 ret = 0;
     __asm__ __volatile__(
         "push %%ebx;"
@@ -97,4 +97,3 @@ s32 sys_read_file(char *fn, char *buf) {
         : "b"(fn),"c"(buf));
     return ret;
 }
-

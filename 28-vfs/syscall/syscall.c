@@ -36,7 +36,7 @@ s32 sys_kprint(registers_t *regs) {
     return 3;
 }
 
-s32 sys_sleep(registers_t *regs) {
+s32 ksys_sleep(registers_t *regs) {
     //kprintf("sys call sleep...\n");
     do_context_switch();
     return 2;
@@ -67,8 +67,8 @@ s32 ksys_ls(registers_t *regs) {
 
 static void *syscalls[] =
 {
-   &sys_sleep,
-   &sys_sleep,
+   &ksys_sleep,
+   &ksys_sleep,
    &mount_hd,
    &sys_kprint,
    &sys_kstd_input,
@@ -88,7 +88,7 @@ s32 sys_handler(registers_t *r) {
         //kprintf("sys handle return :%d\n", ret);
         return ret;
     } else {
-        return sys_sleep(r);
+        return ksys_sleep(r);
     }
     return -1;
 }
