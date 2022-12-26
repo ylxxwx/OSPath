@@ -12,8 +12,15 @@
 
 #define BACKSPACE 0x0E
 #define ENTER 0x1C
-
+#define CAPSLOCK 0x3a
+#define LSHIFT_D 0x2a
+#define RSHIFT_D 0x36
+#define LSHIFT_U 0xaa
+#define RSHIFT_U 0xb6
+static int capslock = 0;
+static int shiftdown = 0;
 static char key_buffer[256];
+
 
 typedef struct kb_req {
   int task_id;
@@ -44,15 +51,22 @@ void kb_task_done() {
     mov_task_ready(kb_cur.task_id);
 }
 
-
 #define SC_MAX 57
+/*
 const char *sc_name[] = { "ERROR", "Esc", "1", "2", "3", "4", "5", "6", 
     "7", "8", "9", "0", "-", "=", "Backspace", "Tab", "Q", "W", "E", 
         "R", "T", "Y", "U", "I", "O", "P", "[", "]", "Enter", "Lctrl", 
         "A", "S", "D", "F", "G", "H", "J", "K", "L", ";", "'", "`", 
         "LShift", "\\", "Z", "X", "C", "V", "B", "N", "M", ",", ".", 
         "/", "RShift", "Keypad *", "LAlt", "Spacebar"};
-const char sc_ascii[] = { '?', '?', '1', '2', '3', '4', '5', '6',     
+*/
+const char sc_ascii_low[] = { '?', '?', '1', '2', '3', '4', '5', '6',     
+    '7', '8', '9', '0', '-', '=', '?', '?', 'q', 'w', 'e', 'r', 't', 'y', 
+        'u', 'i', 'o', 'p', '[', ']', '?', '?', 'a', 's', 'd', 'f', 'g', 
+        'h', 'j', 'k', 'l', ';', '\'', '`', '?', '\\', 'z', 'x', 'c', 'v', 
+        'b', 'n', 'm', ',', '.', '/', '?', '?', '?', ' '};
+
+const char sc_ascii_cap[] = { '?', '?', '1', '2', '3', '4', '5', '6',     
     '7', '8', '9', '0', '-', '=', '?', '?', 'Q', 'W', 'E', 'R', 'T', 'Y', 
         'U', 'I', 'O', 'P', '[', ']', '?', '?', 'A', 'S', 'D', 'F', 'G', 
         'H', 'J', 'K', 'L', ';', '\'', '`', '?', '\\', 'Z', 'X', 'C', 'V', 
@@ -61,7 +75,22 @@ const char sc_ascii[] = { '?', '?', '1', '2', '3', '4', '5', '6',
 static void keyboard_callback(registers_t *regs) {
     /* The PIC leaves us the scancode in port 0x60 */
     u8 scancode = port_byte_in(0x60);
-    
+    // control 
+    if (scancode == CAPSLOCK) {
+        capslock += 1;
+        capslock %= 2;
+        return;
+    }
+
+    if (scancode == LSHIFT_D || scancode == RSHIFT_D) {
+        shiftdown = 1;
+        return;
+    }
+    if (scancode == LSHIFT_U || scancode == RSHIFT_U) {
+        shiftdown = 0;
+        return;
+    }
+
     if (scancode > SC_MAX) return;
     if (scancode == BACKSPACE) {
         if (backspace(key_buffer) >= 0)
@@ -72,7 +101,9 @@ static void keyboard_callback(registers_t *regs) {
         //user_input(key_buffer); /* kernel-controlled function */
         key_buffer[0] = '\0';
     } else {
-        char letter = sc_ascii[(int)scancode];
+        char letter = sc_ascii_low[(int)scancode];
+        if (capslock ^ shiftdown)
+            letter =  sc_ascii_cap[(int)scancode];
         /* Remember that kprint only accepts char[] */
         char str[2] = {letter, '\0'};
         append(key_buffer, letter);
