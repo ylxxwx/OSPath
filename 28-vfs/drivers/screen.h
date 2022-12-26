@@ -22,5 +22,6 @@ void kprint_hex(u32);
 void kprint_dec(s32);
 void kprintln();
 void kprintf(char* str, ...);
+void kprintf_args(char* str, void* arg_ptr);
 
 #endif

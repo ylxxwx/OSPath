@@ -5,7 +5,7 @@ bochs: floppya.img
 	bochsdbg -f ../mkfile/bochsenv/bochs.bochsrc
 
 run: floppya.img
-	qemu-system-x86_64 -drive format=raw,file=$<,index=0,if=floppy -hda ../mkfile/hda.img -boot a
+	qemu-system-x86_64 -drive format=raw,file=$<,index=0,if=floppy -drive format=raw,id=disk,file=../mkfile/hda.img -boot a
 
 floppya.img: bootsect.bin ${KERNEL.BIN}
 	cat $^ > $@

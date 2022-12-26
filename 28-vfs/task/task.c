@@ -4,6 +4,7 @@
 #include "gdt.h"
 #include "frame.h"
 #include "schedule.h"
+#include "user.h"
 
 #define MAX_TASK_ID 16
 extern tss_entry_t tss_entry;
@@ -21,6 +22,10 @@ void mov_task_ready(int task_id) {
   tcb[task_id].status = TASK_READY;
 }
 
+void mov_task_wait(int task_id) {
+  tcb[task_id].status = TASK_WAITING;
+}
+
 static void kernel_main_thread() {
   //enable_interrupt();
   // Enter cpu idle.
@@ -34,24 +39,6 @@ static void kernel_main_thread() {
     }
     asm("hlt");
   }
-}
-
-void copy_func() {
-  //kprintf("user space entry...\n");
-  asm("movl $2, %eax; \
-     int $0x80");
-  while(1) {
-     asm("movl $3, %eax; \
-     int $0x80");
-  }
-  return;
-}
-void user_func() {
-  //u8 *src = (u8*)copy_func;
-  //u8 *dst = (u8*)0x80000000;
-  //kmemcpy(dst, src, 100);
-  //example_func();
-  copy_func();
 }
 
 void init_task() {

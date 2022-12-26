@@ -5,9 +5,9 @@
 #include "string.h"
 #include "timer.h"
 #include "ports.h"
-#include "harddisk.h"
+//#include "harddisk.h"
 #include "panic.h"
-#include "schedule.h"
+//#include "schedule.h"
 
 isr_t interrupt_handlers[256];
 
@@ -120,35 +120,11 @@ char *exception_messages[] = {
     "Reserved"
 };
 
-void read_hd() {
-    init_hd();
-}
-
-void sys_handler(registers_t *r) {
-    //kprintf("system call 128:%d\n", r->err_code);
-    switch(r->err_code) {
-        case 2:
-            kprintf("Test system call\n");
-            read_hd();
-            break;
-        case 3:
-            //kprintf("Sleep...");
-            do_context_switch();
-            break;
-        default:
-            kprintf("No implemented sys call:%d\n", r->err_code);
-            break;
-    }
-    return;
-}
-
 void isr_handler(registers_t *r) {
     u32 err = r->err_code;
-    if (r->int_no == 128) {
-        sys_handler(r);
-        return;
-    }
-    kprintf("\nGot interrupt: %d, %s, %x\n",r->int_no, exception_messages[r->int_no], r->err_code);
+    // 128 has no exception msg.
+    if (r->int_no < 32)
+        kprintf("\nGot interrupt: %d, %s, %x\n",r->int_no, exception_messages[r->int_no], r->err_code);
     if (interrupt_handlers[r->int_no] != 0) {
         isr_t handler = interrupt_handlers[r->int_no];
         handler(r);
@@ -161,8 +137,8 @@ void register_interrupt_handler(u8 n, isr_t handler) {
 
 void irq_handler(registers_t *r) {
     //
-    if (r->int_no != 0x20)
-        kprintf("received %d irq_handler: \n", r->int_no);
+    //if (r->int_no != 0x20)
+    //    kprintf("received %d irq_handler: \n", r->int_no);
 
     /* After every interrupt we need to send an EOI to the PICs
      * or they will not send another interrupt again */

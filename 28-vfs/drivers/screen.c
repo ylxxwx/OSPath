@@ -1,6 +1,6 @@
 #include "screen.h"
-#include "../cpu/ports.h"
-#include "../libc/mem.h"
+#include "ports.h"
+#include "mem.h"
 
 /* Declaration of private functions */
 int get_cursor_offset();
@@ -102,6 +102,7 @@ void kprint_dec(int32 n) {
  **********************************************************/
 int scroll_screen(int cur_offset) {
     /* Check if the offset is over screen size and scroll */
+
     if (cur_offset >= MAX_ROWS * MAX_COLS * 2) {
         int i;
         for (i = 1; i < MAX_ROWS; i++) 
@@ -111,7 +112,11 @@ int scroll_screen(int cur_offset) {
 
         /* Blank last line */
         char *last_line = (char*) (get_offset(0, MAX_ROWS-1) + (u8*) VIDEO_ADDRESS);
-        for (i = 0; i < MAX_COLS * 2; i++) last_line[i] = 0;
+        for (i = 0; i < MAX_COLS * 2; i += 2) {
+          //last_line[i] = 0;
+          last_line[i] = ' ';
+          last_line[i+1] = WHITE_ON_BLACK;
+        }
 
         cur_offset -= 2 * MAX_COLS;
     }

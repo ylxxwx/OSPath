@@ -1,15 +1,47 @@
 #include "keyboard.h"
-#include "../cpu/ports.h"
-#include "../cpu/isr.h"
+#include "ports.h"
+#include "isr.h"
 #include "screen.h"
-#include "../libc/string.h"
-#include "../libc/function.h"
-#include "../kernel/kernel.h"
+#include "string.h"
+#include "function.h"
+#include "kernel.h"
+#include "task.h"
+#include "schedule.h"
 
 #define BACKSPACE 0x0E
 #define ENTER 0x1C
 
 static char key_buffer[256];
+
+typedef struct kb_req {
+  int task_id;
+  int done;
+  u8* buf;
+} kb_req_t;
+
+kb_req_t kb_cur;
+
+s32 kb_read(u8 *buf) {
+    disable_interrupt();
+    kb_cur.done = 0;
+    kb_cur.buf = buf;
+    kb_cur.task_id = cur_task_id;
+    mov_task_wait(cur_task_id);
+    while(kb_cur.done == 0) {
+      do_context_switch();
+    }
+    //kmemcpy(buf, key_buffer, 256);
+    enable_interrupt();
+    return 256;
+}
+
+void kb_task_done() {
+    kmemcpy(kb_cur.buf, key_buffer, 256);
+    kmemset(key_buffer, 8, 256);
+    kb_cur.done = 1;
+    mov_task_ready(kb_cur.task_id);
+}
+
 
 #define SC_MAX 57
 const char *sc_name[] = { "ERROR", "Esc", "1", "2", "3", "4", "5", "6", 
@@ -30,11 +62,12 @@ static void keyboard_callback(registers_t *regs) {
     
     if (scancode > SC_MAX) return;
     if (scancode == BACKSPACE) {
-        backspace(key_buffer);
-        kprint_backspace();
+        if (backspace(key_buffer) >= 0)
+            kprint_backspace();
     } else if (scancode == ENTER) {
         kprintf("\n");
-        user_input(key_buffer); /* kernel-controlled function */
+        kb_task_done();
+        //user_input(key_buffer); /* kernel-controlled function */
         key_buffer[0] = '\0';
     } else {
         char letter = sc_ascii[(int)scancode];

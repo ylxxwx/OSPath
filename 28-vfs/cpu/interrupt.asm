@@ -1,6 +1,7 @@
 ; Defined in isr.c
 [extern isr_handler]
 [extern irq_handler]
+[extern sys_handler]
 [extern kprint_hex]
 [extern kprintln]
 [global interrupt_exit]
@@ -225,10 +226,10 @@ isr12:
 
 ; 13: General Protection Fault Exception (With Error Code!)
 isr13:
-    push esp 
-    call kprint_hex 
-    call kprintln 
-    pop esp
+    ;push esp 
+    ;call kprint_hex 
+    ;call kprintln 
+    ;pop esp
 
     push byte 13
     jmp isr_common_stub
@@ -340,11 +341,6 @@ isr31:
     push byte 31
     jmp isr_common_stub
 
-; 128: system call
-irs_sys:
-    push eax
-    push 0x0080
-    jmp isr_common_stub
 ; IRQ handlers
 irq0:
     cli;
@@ -426,3 +422,45 @@ irq15:
 	push byte 15
 	push byte 47
 	jmp irq_common_stub
+
+; 128: system call
+irs_sys:
+    push eax
+    push 0x0080
+
+    ; 1. Save CPU state
+	pusha ; Pushes edi,esi,ebp,esp,ebx,edx,ecx,eax
+	mov ax, ds ; Lower 16-bits of eax = ds.
+	push eax ; save the data segment descriptor
+	mov ax, 0x10  ; kernel data segment descriptor
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+	
+    push esp ; param of sys_handler
+    ; 2. Call C handler
+    cld
+	call sys_handler
+	
+    ; 3. Restore state
+	pop ecx ; push esp // param out of stack
+
+    pop ecx
+	mov ds, cx
+	mov es, cx
+	mov fs, cx
+	mov gs, cx
+
+	;popa ; the following pop is used to replace popa edi, esi, ebp, esp, ebx, edx, ecx, eax;
+    pop  edi
+    pop  esi
+    pop  ebp
+    add esp, 4 ;    ;pop  esp
+    pop  ebx
+    pop  edx
+    pop  ecx
+    
+    add esp, 4 ;pop  eax instead, eax is the ret value.
+	add esp, 8 ; Cleans up the pushed error code and pushed ISR number
+	iret ; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP

@@ -1,9 +1,9 @@
 # $@ = target file
 # $< = first dependency
 # $^ = all dependencies
-C_SOURCES = $(wildcard kernel/*.c drivers/*.c cpu/*.c libc/*.c mm/*.c task/*.c sync/*.c fs/*.c)
-HEADERS = $(wildcard kernel/*.h drivers/*.h cpu/*.h libc/*.h mm/*.h task/*.h sync/*.h fs/*.h)
-INC = kernel drivers cpu libc mm task sync fs
+C_SOURCES = $(wildcard kernel/*.c drivers/*.c cpu/*.c libc/*.c mm/*.c task/*.c sync/*.c fs/*.c syscall/*.c userspace/*.c)
+HEADERS = $(wildcard kernel/*.h drivers/*.h cpu/*.h libc/*.h mm/*.h task/*.h sync/*.h fs/*.h syscall/*.h userspace/*.h)
+INC = kernel drivers cpu libc mm task sync fs syscall userspace
 # Nice syntax for file extension replacement
 OBJS = ${C_SOURCES:.c=.o cpu/interrupt.o task/task_switch.o libc/utils.o}
 

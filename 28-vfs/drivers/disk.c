@@ -79,10 +79,11 @@ void hd_read_req_one_sector(int sec_id, u8 * buf) {
     
     cur = req;
     read_disk(sec_id, 1);
-    enable_interrupt();
+    mov_task_wait(cur_task_id);
     while(cur->response == 0) {
         do_context_switch();
     }
+    enable_interrupt();
 }
 
 int read_sector(disk_t *disk, int sec_id, int num, u8* buf) {
