@@ -26,7 +26,6 @@ void init_dev(device_t *device) {
     } else {
         device->partition_offset = 0;
     }
-    kprintf("read partition offset:%d\n", device->partition_offset);
     int ret = read_super_block(disk);
 }
 
@@ -58,7 +57,7 @@ void read_desp(device_t *device) {
           group_count);
         int block_id_for_desp = device->super->s_first_data_block +1;
         trace("!!!read_desp, block size:%d, desp size:%d\n", device->block_size, sizeof(group_desc_t));
-        device->desp = (group_desc_t*)alloc_mem(1024);//device->block_size);
+        device->desp = (group_desc_t*)alloc_mem(device->block_size);
         read_blocks(&device->disk, block_id_for_desp, (u8*)device->desp);
         show_desp(device->desp);
         show_desp(device->desp + 1);
@@ -97,7 +96,7 @@ int read_blocks(disk_t *disk, int start_block_id, u8* buffer) {
 int read_partition_offset(disk_t *disk) {
     partition_t *ppt;
 
-    u8 buffer[512];
+    u8 *buffer = kmalloc(512);//[512];
     int sz = read_sector(disk, 0, 1, buffer);
     ppt = (partition_t *)(buffer + 0x1BE);
 
@@ -114,14 +113,14 @@ int read_partition_offset(disk_t *disk) {
             return ppt->nrb_before;
         ppt++;
     }
+    kfree(buffer);
     return 0;
 }
 
 int read_super_block(disk_t *disk) {
     device_t *device = get_device(disk);
     int super_loc = superblock_offset(device->partition_offset);
-    device->super = (super_block_t *)alloc_mem(sizeof(super_block_t));
-    kprintf("Read super block, block loc:%d\n", super_loc);
+    device->super = (super_block_t *)alloc_mem(1024);
     int sz = read_sector(disk, super_loc, 2, (u8*)device->super);
 
     //if (sz == 2) {

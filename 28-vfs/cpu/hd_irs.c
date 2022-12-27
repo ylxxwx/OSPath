@@ -4,7 +4,7 @@
 #include "function.h"
 #include "ports.h"
 #include "task.h"
-#include "harddisk.h"
+//#include "harddisk.h"
 #include "disk.h"
 #include "screen.h"
 

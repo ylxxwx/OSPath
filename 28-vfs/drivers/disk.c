@@ -20,7 +20,7 @@ static hd_req_t *cur_hd_req = 0;
 
 void free_cur_req() {
     if (cur_hd_req) {
-        kfree(cur_hd_req->buf);
+        kfree(cur_hd_req);
     }
     cur_hd_req = 0;
 }
@@ -80,16 +80,10 @@ void hd_read_req_one_sector(int sec_id, u8 * buf) {
     cur_hd_req = req;
     read_disk(sec_id, 1);
     mov_task_wait(cur_task_id);
+    enable_interrupt();
     while(cur_hd_req->response == 0) {
         do_context_switch();
     }
-    enable_interrupt();
-}
-
-static void sleep() {
-    int count = 1;
-    while(count-->0)
-      do_context_switch();
 }
 
 int read_sector(disk_t *disk, int sec_id, int num, u8* buf) {

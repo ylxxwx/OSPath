@@ -122,6 +122,8 @@ char *exception_messages[] = {
 
 void isr_handler(registers_t *r) {
     u32 err = r->err_code;
+    if (r->int_no == 0)
+        panic("non recoverable.");
     // 128 has no exception msg.
     if (r->int_no < 32)
         kprintf("\nGot interrupt: %d, %s, %x\n",r->int_no, exception_messages[r->int_no], r->err_code);

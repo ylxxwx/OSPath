@@ -55,7 +55,7 @@ page_t *get_page(u32 address, int make, page_directory_t *dir)
         if (dir->tables[table_idx] == 0)
             return 0;
         kmemset((u8 *)dir->tables[table_idx], 0, sizeof(page_table_t));
-        kprintf("Page alloc mem, vaddr: %x, phyaddr: %x\n", dir->tables[table_idx], tmp);
+        //kprintf("Page alloc mem, vaddr: %x, phyaddr: %x\n", dir->tables[table_idx], tmp);
         dir->tablesPhysical[table_idx] = tmp | 0x7;//0x7;
         return &dir->tables[table_idx]->pages[address % 1024];
     }

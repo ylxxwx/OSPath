@@ -16,18 +16,12 @@ u32 size = 0x800000;
 
 void main()
 {
-    cur_task_id = 0;
     init_gdt();
     isr_install();
     irq_install();
     init_memory();
-
-    kprintf("Type something, it will go through the kernel\n"
-            "Type END to halt the CPU or PAGE to request a kmalloc()\n> ");
     init_syscalls();
     init_hds();
-    //__asm__ ("int $0x2");
-
     init_task();
 }
 

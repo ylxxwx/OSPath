@@ -120,6 +120,7 @@ int mount_root(disk_t *disk) {
         root.childs[idx] = 0;
     }
     cur = &root;
+    init_dev(&disk);
     sync_node(cur);
     ls_dir(".");
 }

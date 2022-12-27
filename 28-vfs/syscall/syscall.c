@@ -1,6 +1,6 @@
 #include "syscall.h"
 #include "isr.h"
-#include "harddisk.h"
+//#include "harddisk.h"
 #include "panic.h"
 #include "schedule.h"
 #include "screen.h"

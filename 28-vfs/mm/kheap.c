@@ -153,18 +153,19 @@ void *heap_alloc(u32 size, u8 page_align, heap_t *heap) {
 }
 
 void heap_free(void* p, heap_t *heap) {
-/*    if (p == 0)
+    if (p == 0)
         return;
-
     header_t *header = (header_t *)((u32)p - KHEAP_HEAD_SIZE);
     footer_t *footer = (footer_t *)((u32)header + header->size - KHEAP_FOOT_SIZE);
 
     if (header->magic != KHEAP_MAGIC) {
         kprintf("heap_free, but header magic is not correct.\n");
+        panic("heap_free not correct.");
         return;
     }
     if (footer->magic != KHEAP_MAGIC) {
         kprintf("heap_free, but footer magic is not correct.\n");
+        panic("heap_free not correct.");
         return;
     }
 
@@ -172,7 +173,7 @@ void heap_free(void* p, heap_t *heap) {
     char do_add = 1;
 
     if ((u32)header <= heap->start_address) {
-        kprintf("kheap free. First block. head <= start addreee.\n");
+        //kprintf("kheap free. First block. head <= start addreee.\n");
     } else {
         footer_t *prev_foot = (footer_t *)((u32)header - KHEAP_FOOT_SIZE);
         if (prev_foot->magic == KHEAP_MAGIC && prev_foot->header->is_hole == 1) {
@@ -181,7 +182,7 @@ void heap_free(void* p, heap_t *heap) {
             header->size += cache_size;
             do_add = 0;
         } else {
-            kprintf("kheap_free prev hole Addr : %x, magic: %x\n", prev_foot->header, prev_foot->header->magic);
+            //kprintf("kheap_free prev hole Addr : %x, magic: %x\n", prev_foot->header, prev_foot->header->magic);
         }
     }
 
@@ -219,7 +220,6 @@ void heap_free(void* p, heap_t *heap) {
     if (do_add == 1) {
         insert_ordered_array((void*)header, &heap->index);
     }
-*/
 }
 
 heap_t *init_kheap() {

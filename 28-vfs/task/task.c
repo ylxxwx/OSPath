@@ -131,7 +131,6 @@ tcb_t* create_thread(char* name, thread_func function, u32 priority, uint8 user)
 
     interrupt_stack_t* interrupt_stack =
         (interrupt_stack_t*)((uint32)thread->kernel_esp + sizeof(switch_stack_t));
-    kprintf("inerrupt stack:%x, top:%x\n", interrupt_stack, interrupt_stack + sizeof(interrupt_stack_t));
     // data segemnts
     interrupt_stack->ds = SELECTOR_U_DATA;
 
@@ -180,53 +179,12 @@ uint32 prepare_user_stack(
     tcb_t* thread, uint32 stack_top, uint32 argc, char** argv, uint32 return_addr) {
   uint32 total_argv_length = 0;
   // Reserve space to copy the argv strings.
-  /*
-  for (int i = 0; i < argc; i++) {
-    char c;
-    int j = 0;
-    while ((c != argv[i][j++]) != '\0') {
-      total_argv_length++;
-    }
-    total_argv_length++;
-  }
-  stack_top -= total_argv_length;
-  stack_top = stack_top / 4 * 4;
-  */
-  kprintf("here stack top:%x\n", stack_top);
-
-  //char* args[argc + 1];
-  //args[0] = thread->name;
-
-  //char* argv_chars_addr = (char*)stack_top;
-/*  for (int i = 0; i < argc; i++) {
-    uint32 length = strcpy(argv_chars_addr, argv[i]);
-    args[i + 1] = (char*)argv_chars_addr;
-    argv_chars_addr += (length + 1);
-  }
-*/
-  // Copy args[] array to stack.
-  //stack_top -= ((argc + 1) * 4);
-  //uint32 argv_start = stack_top;;
-  //for (int i = 0; i < argc + 1; i++) {
-  //  *((char**)(argv_start + i * 4)) = args[i];
-  //}
-
-  //stack_top -= 4;
-  //*((uint32*)stack_top) = argv_start;
-  //stack_top -= 4;
-  //*((uint32*)stack_top) = argc + 1;
-
-  // Set thread return address.
-  //stack_top -= 0x800;
   stack_top -= 8;
   *((uint32*)stack_top) = return_addr;
   
-  kprintf("mov stack_top to %x and put ret_addr:%x\n", stack_top, return_addr);
-  //monitor_printf("%x return_addr = %x\n", stack_top, return_addr);
-
   interrupt_stack_t* interrupt_stack =
       (interrupt_stack_t*)((uint32)thread->kernel_esp + sizeof(switch_stack_t));
-  kprintf("user stack esp:%x\n", stack_top);
+  //kprintf("user stack esp:%x\n", stack_top);
   interrupt_stack->user_esp = stack_top;
   return stack_top;
 }
@@ -236,7 +194,7 @@ tcb_t* create_user_thread(char* name, void* function) {
   int stack_index = 1;
   task->user_stack_index = stack_index;
   uint32 thread_stack_top = USER_STACK_TOP - stack_index * USER_STACK_SIZE;
-  kprintf("create user space address:%x, stack top:%x\n", (uint32)thread_stack_top - PAGE_SIZE, (uint32)thread_stack_top);
+  //kprintf("create user space address:%x, stack top:%x\n", (uint32)thread_stack_top - PAGE_SIZE, (uint32)thread_stack_top);
   map_address((uint32)thread_stack_top - PAGE_SIZE, 0, 1);
   prepare_user_stack(task, thread_stack_top, 0, 0, (uint32)thread_exit);
   //u8 * addr = (u8*)(USER_STACK_TOP - PAGE_SIZE + 0x100);
