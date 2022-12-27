@@ -5,6 +5,8 @@
 #include "ext2.h"
 #include "disk.h"
 
+#define BLOCK_SIZE       512
+
 #define NUM_BLOCK_BUFFER 10
 #define PATH_DEPTH       16
 typedef struct {

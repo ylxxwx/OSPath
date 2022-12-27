@@ -18,8 +18,8 @@ s32 ksys_pwd(registers_t *regs) {
 s32 ksys_read_file(registers_t *regs) {
     char *fn = (char *)regs->ebx;
     void *buf = (void *)regs->ecx;
-    vfs_read_file(fn, buf);
-    return 8;
+    int sz = vfs_read_file(fn, buf);
+    return sz;
 }
 
 s32 ksys_cd_dir(registers_t *regs) {

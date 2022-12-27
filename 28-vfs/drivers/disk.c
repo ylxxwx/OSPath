@@ -20,7 +20,7 @@ static hd_req_t *cur_hd_req = 0;
 
 void free_cur_req() {
     if (cur_hd_req) {
-        kfree(cur_hd_req);
+        kfree((u8*)cur_hd_req);
     }
     cur_hd_req = 0;
 }

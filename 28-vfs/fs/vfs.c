@@ -3,6 +3,9 @@
 #include "inode.h"
 #include "fsmem.h"
 #include "trace.h"
+#include "screen.h"
+#include "string.h"
+#include "mem.h"
 
 #define VS_NAME_LEN 64
 #define VS_MAX_ITEMS 64
@@ -26,6 +29,7 @@ typedef struct vfs_node{
 
 vfs_node_t root;
 static vfs_node_t *cur = 0;
+void sync_node(vfs_node_t *node);
 
 static vfs_node_t *path_to_node(char *path) {
     vfs_node_t *target = cur;
@@ -106,10 +110,7 @@ void sync_node(vfs_node_t *node) {
 }
 
 int mount_root(disk_t *disk) {
-//    show_disk("mount_root: ", disk);
     //enable_trace();
-    trace("size of machine: le32: %d, le16: %d \n", 
-        sizeof(__le32), sizeof(__le16));
     clear_mem(root.name, 0, VS_NAME_LEN);
     root.name[0] = '/';
     root.disk = *disk;
@@ -120,9 +121,8 @@ int mount_root(disk_t *disk) {
         root.childs[idx] = 0;
     }
     cur = &root;
-    init_dev(&disk);
     sync_node(cur);
-    ls_dir(".");
+    //ls_dir(".");
 }
 
 int mount(disk_t *disk, char *path) {
@@ -165,17 +165,14 @@ void cd_dir(char *path) {
     cur = target;  
 }
 
-void more_file(char *path) {
-
-}
-
-void vfs_read_file(char *path, u8* buf) {
+int vfs_read_file(char *path, u8* buf) {
     vfs_node_t *target = path_to_node(path);
     if (target->is_dir) {
         trace("can't read DIR\n");
-        return;
+        return 0;
     }
     int nz = read_inode_file(target, buf);
+    return nz;
 }
 
 void vfs_pwd() {

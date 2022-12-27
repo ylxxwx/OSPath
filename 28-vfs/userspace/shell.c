@@ -130,7 +130,8 @@ void execCmd(int cmd, int argc, char argv[][80]){
         } else {
             u8 buf[512];
             kmemset(buf, 0, 512);
-            sys_read_file(argv[1], buf);
+            int sz = sys_read_file(argv[1], buf);
+            output("file:%s, size:%d\n", argv[1], sz);
             output(buf);
         }
         break;

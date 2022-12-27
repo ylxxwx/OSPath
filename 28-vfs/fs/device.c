@@ -4,6 +4,7 @@
 #include "disk.h"
 #include "trace.h"
 #include "fsmem.h"
+#include "mem.h"
 #include "screen.h"
 
 device_t disks[2][2];
@@ -96,7 +97,7 @@ int read_blocks(disk_t *disk, int start_block_id, u8* buffer) {
 int read_partition_offset(disk_t *disk) {
     partition_t *ppt;
 
-    u8 *buffer = kmalloc(512);//[512];
+    u8 *buffer = (u8 *)kmalloc(BLOCK_SIZE);
     int sz = read_sector(disk, 0, 1, buffer);
     ppt = (partition_t *)(buffer + 0x1BE);
 
@@ -120,7 +121,7 @@ int read_partition_offset(disk_t *disk) {
 int read_super_block(disk_t *disk) {
     device_t *device = get_device(disk);
     int super_loc = superblock_offset(device->partition_offset);
-    device->super = (super_block_t *)alloc_mem(1024);
+    device->super = (super_block_t *)alloc_mem(2*BLOCK_SIZE);
     int sz = read_sector(disk, super_loc, 2, (u8*)device->super);
 
     //if (sz == 2) {

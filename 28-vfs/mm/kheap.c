@@ -2,6 +2,7 @@
 #include "screen.h"
 #include "nofreemem.h"
 #include "ordered_array.h"
+#include "panic.h"
 
 // 24 C 1100  26
 // 1G 40000000 28
