@@ -2,7 +2,8 @@ ISOBUILDDIR=../mkfile/buildiso
 
 iso: os.iso
 	qemu-system-x86_64 -boot d -cdrom os.iso -drive format=raw,id=disk,file=../mkfile/hda.img
-
+dbgiso: os.iso
+	bochsdbg -f ../mkfile/bochsenv/bochsiso.bochsrc
 os.iso: kernel.elf
 	cp $< ${ISOBUILDDIR}/iso/boot/
 	cd ${ISOBUILDDIR}; ./build.sh

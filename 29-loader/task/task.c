@@ -4,7 +4,7 @@
 #include "gdt.h"
 #include "frame.h"
 #include "schedule.h"
-#include "user.h"
+#include "vfs.h"
 
 #define MAX_TASK_ID 16
 extern tss_entry_t tss_entry;
@@ -41,6 +41,12 @@ static void kernel_main_thread() {
   }
 }
 
+void prepare_first_user_program() {
+  u8* program_addr = (u8*) 0xA0000000;
+  int ret = vfs_read_file("/bin/shell", program_addr);
+  kprintf("Load shell OK(ret).\n");
+}
+
 void init_task() {
   cur_task_id = 0;
   for (int idx = 0; idx < MAX_TASK_ID; idx++) {
@@ -48,10 +54,12 @@ void init_task() {
     tcb[idx].status = TASK_DEAD;
   }
   cur_avail_id = 0;
+
+  prepare_first_user_program();
   
   tcb_t* main_thread = create_kernel_thread("main", (void*)kernel_main_thread);
   main_thread->status = TASK_READY;
-  tcb_t* user_thread = create_user_thread("main", (void*)user_func);
+  tcb_t* user_thread = create_user_thread("main", (void*)/*user_func*/0xA0000000);
   user_thread->status = TASK_READY;
   //kprintf("task Create state: %d-%d-%d-%d\n", tcb[0].status, tcb[1].status, tcb[2].status, tcb[3].status);
   asm volatile (
@@ -117,7 +125,9 @@ tcb_t* create_thread(char* name, thread_func function, u32 priority, uint8 user)
   switch_stack->eax = 0;
 
   switch_stack->thread_entry_eip = (uint32)kernel_thread;
+  kprintf("task kernel function start.\n");
   switch_stack->function = function;
+  kprintf("task kernel function end.\n");
 
   // For user thread, there are some more steps to do:
   //  - Prepare the kernel interrupt stack context for later to switch to user mode.
@@ -145,7 +155,9 @@ tcb_t* create_thread(char* name, thread_func function, u32 priority, uint8 user)
     interrupt_stack->eax = 0;
 
     // user-level code env
+    kprintf("task us function start.\n");
     interrupt_stack->eip = (u32)function;//(uint32)(0xB0000000 - PAGE_SIZE + 0x100); //function;//
+    kprintf("task us function end.\n");
     interrupt_stack->cs = SELECTOR_U_CODE;
     interrupt_stack->eflags = EFLAGS_IOPL_0 | EFLAGS_MBS | EFLAGS_IF_1;
 
@@ -166,13 +178,13 @@ tcb_t* create_kernel_thread(char* name, void* function) {
   return create_thread(name, function, THREAD_DEFAULT_PRIORITY, false);
 }
 
-#define USER_STACK_TOP   0xB0000000  // 0xC0000000 - 4MB
+#define USER_STACK_TOP   0xC0000000  // 0xC0000000 - 4MB
 #define USER_STACK_SIZE  65536       // 64KB
 
 void thread_exit() {
   kprintf("Thread exit\n");
-  tcb[cur_task_id].status = TASK_DEAD;
-  do_context_switch();
+  //tcb[cur_task_id].status = TASK_DEAD;
+  //do_context_switch();
 }
 
 uint32 prepare_user_stack(

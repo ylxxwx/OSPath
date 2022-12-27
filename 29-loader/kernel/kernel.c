@@ -10,6 +10,16 @@
 #include "hd_irs.h"
 #include "syscall.h"
 #include "sync_test.h"
+#include "disk.h"
+#include "vfs.h"
+
+void init_rootfs() {
+    disk_t disk;
+    disk.major = 1;
+    disk.minor = 0;
+    disk.partition = 0;
+    mount_root(&disk);
+}
 
 void main()
 {
@@ -19,5 +29,6 @@ void main()
     init_memory();
     init_syscalls();
     init_hds();
+    init_rootfs();
     init_task();
 }

@@ -3,6 +3,7 @@
 #include "device.h"
 #include "trace.h"
 #include "fsmem.h"
+#include "panic.h"
 
 void show_inode(int id, inode_t *inode) {
     if (inode == 0)
@@ -161,16 +162,19 @@ int get_inode_file(disk_t *disk, int inode_id, char *buf) {
 
     show_inode(inode_id, inode);
 
-    int block_id = inode->i_block[0]; //i_block[0]
-    trace("get_inode_file inode:%d, block id:%d\n", inode_id, block_id);
-    if (device->data_buffer.block_id != block_id) {
-        trace("get_next_dir_entry prepare the dir buffer.\n");
-        if (device->data_buffer.buffer)
-            free_mem(device->data_buffer.buffer);
-        device->data_buffer.buffer = (u8*)alloc_mem(device->block_size);
-        int nz = read_blocks(&device->disk, block_id, device->data_buffer.buffer);
-        device->data_buffer.block_id = block_id;
+    int file_sz = inode->i_size;
+
+    if (file_sz > 14 * device->block_size) {
+        panic("Didn't implement indirect fs.\n");
     }
-    mov_mem(buf, device->data_buffer.buffer, inode->i_size);
+
+    for (int idx = 0; idx < 14; idx++) {
+        if (idx * device->block_size >= file_sz) {
+            break;
+        }
+
+        int block_id = inode->i_block[idx]; //i_block[0]
+        read_blocks(&device->disk, block_id, (u8*)(buf + (idx * device->block_size)));
+    }
     return inode->i_size;
 }

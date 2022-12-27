@@ -10,6 +10,19 @@
 typedef s32 (*sys_func) (registers_t *regs);
 
 static s32 syscall_handler(registers_t *regs);
+
+s32 ksys_printstr(registers_t *regs) {
+    u32 val = (u32)regs->ebx;
+    kprintf("Val:%s\n", val);
+    return 0;
+}
+
+s32 ksys_printhex(registers_t *regs) {
+    u32 val = (u32)regs->ebx;
+    kprintf("Val:%x\n", val);
+    return 0;
+}
+
 s32 ksys_pwd(registers_t *regs) {
     vfs_pwd();
     return 9;
@@ -34,14 +47,16 @@ s32 sys_kstd_input(registers_t *regs) {
 }
 
 s32 sys_kprint(registers_t *regs) {
+    
     char *fmt = (char *)regs->ebx;
     void *args = (void *)regs->ecx;
+    //kprintf("sys_kprint. %s\n", fmt);
     kprintf_args(fmt, args);
     return 3;
 }
 
 s32 ksys_sleep(registers_t *regs) {
-    //kprintf("sys call sleep...\n");
+    kprintf("sys call sleep...\n");
     do_context_switch();
     return 2;
 }
@@ -82,6 +97,8 @@ static void *syscalls[] =
    &ksys_cd_dir,
    &ksys_read_file,
    &ksys_pwd,
+   &ksys_printhex,
+   &ksys_printstr,
 };
 
 u32 num_syscalls = 3;

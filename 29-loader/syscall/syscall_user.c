@@ -109,3 +109,15 @@ s32 sys_pwd() {
     return ret;
 }
 
+s32 sys_printval(u32 val) {
+    s32 ret = 0;
+    __asm__ __volatile__(
+        "push %%ebx;"
+        "movl $0xA, %%eax;"
+        "int $0x80;"
+        "pop %%ebx;"
+        "mov %%eax, %0;"
+        : "=m"(ret)
+        : "b"(val));
+    return ret;
+}
