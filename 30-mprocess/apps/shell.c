@@ -14,6 +14,7 @@
 #define CMD_TRACEOFF    7
 #define CMD_INVALID     8
 #define CMD_PWD         9
+#define CMD_FORK        10
 int main();
 
 void execCmd(int cmd, int argc, char argv[][80]);
@@ -73,6 +74,8 @@ const int str_2_cmd(char *str) {
         cmd = CMD_TRACEOFF;
     } else if (0 == strcmp("pwd", str)) {
         cmd = CMD_PWD;
+    } else if (0 == strcmp("fork", str)) {
+        cmd = CMD_FORK;
     }
     return cmd;
 }
@@ -150,6 +153,10 @@ void execCmd(int cmd, int argc, char argv[][80]){
     case CMD_PWD: {
       sys_pwd();
       break;
+    }
+    case CMD_FORK: {
+       int ret = sys_fork();
+       output("out of fork: ret:%d\n", ret);
     }
     case CMD_INVALID:
     case CMD_EXIT: {

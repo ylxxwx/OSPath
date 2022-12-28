@@ -1,7 +1,7 @@
 #ifndef _PAGE_H_
 #define _PAGE_H_
 
-#include "../cpu/isr.h"
+#include "isr.h"
 
 #define INDEX_FROM_BIT(a) (a/(8*4))
 #define OFFSET_FROM_BIT(a) (a%(8*4))
@@ -28,6 +28,7 @@ typedef struct page_directory {
 } page_directory_t;
 
 extern page_directory_t * current_directory;
+extern page_directory_t * kernel_directory;
 
 page_t *get_page(u32 address, int make, page_directory_t *dir);
 void switch_page_directory(page_directory_t *dir);

@@ -4,7 +4,6 @@
 #include "screen.h"
 #include "string.h"
 #include "function.h"
-#include "kernel.h"
 #include "task.h"
 #include "schedule.h"
 #include "mem.h"

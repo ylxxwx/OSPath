@@ -135,3 +135,12 @@ s32 sys_printstr(char *val) {
     return ret;
 }
 
+s32 sys_fork() {
+    s32 ret = 0;
+    __asm__ __volatile__(
+        "movl $0xC, %%eax;"
+        "int $0x80;"
+        "mov %%eax, %0;"
+        : "=m"(ret));
+    return ret;
+}

@@ -1,6 +1,5 @@
 #include "syscall.h"
 #include "isr.h"
-//#include "harddisk.h"
 #include "panic.h"
 #include "schedule.h"
 #include "screen.h"
@@ -10,6 +9,11 @@
 typedef s32 (*sys_func) (registers_t *regs);
 
 static s32 syscall_handler(registers_t *regs);
+
+s32 ksys_fork(registers_t *regs) {
+    kprintf("sys calll: fork:%s\n");
+    return 1;
+}
 
 s32 ksys_printstr(registers_t *regs) {
     u32 val = (u32)regs->ebx;
@@ -99,6 +103,7 @@ static void *syscalls[] =
    &ksys_pwd,
    &ksys_printhex,
    &ksys_printstr,
+   &ksys_fork,
 };
 
 u32 num_syscalls = 3;

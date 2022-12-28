@@ -1,6 +1,5 @@
 #include "isr.h"
 #include "screen.h"
-#include "kernel.h"
 #include "string.h"
 #include "gdt.h"
 #include "nofreemem.h"

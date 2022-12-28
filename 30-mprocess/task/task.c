@@ -8,8 +8,6 @@
 
 #define MAX_TASK_ID 16
 extern tss_entry_t tss_entry;
-extern void example_func();
-extern void syscall_fork_exit();
 extern void switch_to_user_mode();
 int cur_avail_id = 0;
 
@@ -156,7 +154,7 @@ tcb_t* create_thread(char* name, thread_func function, u32 priority, uint8 user)
 
     // user-level code env
     kprintf("task us function start.\n");
-    interrupt_stack->eip = (u32)function;//(uint32)(0xB0000000 - PAGE_SIZE + 0x100); //function;//
+    interrupt_stack->eip = (u32)function;
     kprintf("task us function end.\n");
     interrupt_stack->cs = SELECTOR_U_CODE;
     interrupt_stack->eflags = EFLAGS_IOPL_0 | EFLAGS_MBS | EFLAGS_IF_1;
@@ -183,8 +181,6 @@ tcb_t* create_kernel_thread(char* name, void* function) {
 
 void thread_exit() {
   kprintf("Thread exit\n");
-  //tcb[cur_task_id].status = TASK_DEAD;
-  //do_context_switch();
 }
 
 uint32 prepare_user_stack(
@@ -196,7 +192,6 @@ uint32 prepare_user_stack(
   
   interrupt_stack_t* interrupt_stack =
       (interrupt_stack_t*)((uint32)thread->kernel_esp + sizeof(switch_stack_t));
-  //kprintf("user stack esp:%x\n", stack_top);
   interrupt_stack->user_esp = stack_top;
   return stack_top;
 }
@@ -206,12 +201,7 @@ tcb_t* create_user_thread(char* name, void* function) {
   int stack_index = 1;
   task->user_stack_index = stack_index;
   uint32 thread_stack_top = USER_STACK_TOP - stack_index * USER_STACK_SIZE;
-  //kprintf("create user space address:%x, stack top:%x\n", (uint32)thread_stack_top - PAGE_SIZE, (uint32)thread_stack_top);
   map_address((uint32)thread_stack_top - PAGE_SIZE, 0, 1);
   prepare_user_stack(task, thread_stack_top, 0, 0, (uint32)thread_exit);
-  //u8 * addr = (u8*)(USER_STACK_TOP - PAGE_SIZE + 0x100);
-  //u8 * src = (u8*) example_func;
-  //*addr = *src;
-  //*(addr+1) = *(src+1);
   return task;
 }

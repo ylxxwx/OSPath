@@ -10,8 +10,16 @@
 
 u32 *frames;
 u32 nframes;
+u8 *frame_user_count;
 
 extern u32 placement_address;
+
+void init_frames(u32 mem_size) {
+    nframes = mem_size / 0x1000;
+    frames = (u32 *)kmalloc_nofree(INDEX_FROM_BIT(nframes));
+    kmemset((u8 *)frames, 0, INDEX_FROM_BIT(nframes));
+    frame_user_count = (u32 *)kmalloc_nofree(sizeof(u8)*nframes);
+}
 
 static void set_frame(u32 frame_addr) {
     u32 frame = frame_addr /0x1000;
