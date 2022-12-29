@@ -1,6 +1,7 @@
 [global resume_thread]
 [global context_switch]
 [global switch_to_user_mode]
+[global syscall_fork_exit]
 [extern interrupt_exit]
 
 context_switch:
@@ -33,3 +34,30 @@ resume_thread:
 switch_to_user_mode:
   add esp, 0x08
   jmp interrupt_exit
+
+syscall_fork_exit:
+  ; move esp to interrupt stack
+  add esp, 8
+
+  ; recover the original data segment.
+  pop ecx
+  mov ds, cx
+  mov es, cx
+  mov fs, cx
+  mov gs, cx
+
+  pop edi
+  pop esi
+  pop ebp
+  add esp, 4  ; do not pop old esp, otherwise child process will not return normally from fork()
+  pop ebx
+  pop edx
+  pop ecx
+  mov eax, 0  ; child process returns 0
+  add esp, 4
+
+  ; pop dummy values
+  add esp, 8
+
+  ; pop eip, cs, eflags, user_esp and user_ss by processor
+  iret

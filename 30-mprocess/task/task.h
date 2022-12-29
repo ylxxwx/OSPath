@@ -5,21 +5,22 @@
 #include "process.h"
 #include "isr.h"
 
-#define KERNEL_MAIN_STACK_TOP    0xF0000000
-#define THREAD_STACK_MAGIC       0x32602021
-#define THREAD_DEFAULT_PRIORITY  10
+#define KERNEL_MAIN_STACK_TOP 0xF0000000
+#define THREAD_STACK_MAGIC 0x32602021
+#define THREAD_DEFAULT_PRIORITY 10
 
-#define KERNEL_STACK_SIZE  8192
+#define KERNEL_STACK_SIZE 8192
 
-#define EFLAGS_MBS    (1 << 1)
-#define EFLAGS_IF_0   (0 << 9)
-#define EFLAGS_IF_1   (1 << 9)
+#define EFLAGS_MBS (1 << 1)
+#define EFLAGS_IF_0 (0 << 9)
+#define EFLAGS_IF_1 (1 << 9)
 #define EFLAGS_IOPL_0 (0 << 12)
 #define EFLAGS_IOPL_3 (3 << 12)
 
 typedef void thread_func();
 
-enum task_status {
+enum task_status
+{
   TASK_RUNNING,
   TASK_READY,
   TASK_BLOCKED,
@@ -28,7 +29,8 @@ enum task_status {
   TASK_DEAD
 };
 
-typedef struct task_struct {
+typedef struct task_struct
+{
   // kernel stack pointer
   uint32 kernel_esp;
   uint32 kernel_stack;
@@ -39,7 +41,7 @@ typedef struct task_struct {
   // timer ticks this thread has been running for.
   uint32 ticks;
   // pointer to its process
-  //struct process_struct* process;
+  // struct process_struct* process;
   pcb_t *process;
   // user stack
   uint32 user_stack;
@@ -50,7 +52,8 @@ typedef struct task_struct {
   uint32 preempt_count;
 } tcb_t;
 
-struct switch_stack {
+struct switch_stack
+{
   // Switch context.
   uint32 edi;
   uint32 esi;
@@ -63,8 +66,8 @@ struct switch_stack {
   // For thread first run.
   uint32 thread_entry_eip;
 
-  void (*unused_retaddr);
-  thread_func* function;
+  void(*unused_retaddr);
+  thread_func *function;
 };
 typedef struct switch_stack switch_stack_t;
 
@@ -78,14 +81,14 @@ void mov_task_ready(int task_id);
 void mov_task_wait(int task_id);
 
 // Create a new thread.
-tcb_t* create_thread(pcb_t *, char* name, thread_func function, uint32 priority, uint8 user);
-tcb_t* create_user_thread(pcb_t *, char* name, void* function);
-uint32 prepare_user_stack(tcb_t* thread, uint32 stack_top, uint32 argc, char** argv, uint32 return_addr);
+tcb_t *create_thread(pcb_t *, char *name, thread_func function, uint32 priority, uint8 user);
+tcb_t *create_user_thread(pcb_t *, char *name, void *function);
+uint32 prepare_user_stack(tcb_t *thread, uint32 stack_top, uint32 argc, char **argv, uint32 return_addr);
 
-tcb_t* fork_crt_thread();
+tcb_t *fork_crt_thread();
+tcb_t *get_cur_thread();
+void destroy_thread(tcb_t *thread);
 
-void destroy_thread(tcb_t* thread);
-
-tcb_t* create_kernel_thread(pcb_t *,char* name, void* function);
+tcb_t *create_kernel_thread(pcb_t *, char *name, void *function);
 int get_next_ready_task();
 #endif
