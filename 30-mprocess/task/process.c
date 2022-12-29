@@ -21,19 +21,19 @@ pcb_t *create_process(char *name, int is_kernel_process) {
   if (id == -1)
     panic("no more process resource.");
   process->id = id;
-  if (name != NULL) {
-    kstrcpy(process->name, name);
-  } else {
+  //if (name != NULL) {
+  //  kstrcpy(process->name, name);
+  //} else {
     //char buf[16];
     //sprintf(buf, "process-%u", process->id);
     //kstrcpy(process->name, buf);
-  }
-
+  //}
   process->parent = NULL;
 
   process->status = PROCESS_NORMAL;
   process->is_kernel_process = is_kernel_process;
   process->exit_code = 0;
-  //process->page_dir = clone_crt_page_dir();
+  process->page_dir = clone_crt_page_dir(current_directory);
+  //kprintf("process dir:va:%x pa:%x\n", process->page_dir->tablesPhysical, vaddr_to_paddr(process->page_dir->tablesPhysical));
   return process;
 }

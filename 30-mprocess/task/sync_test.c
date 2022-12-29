@@ -64,11 +64,13 @@ void start_sync_test() {
     sync_test = true;
 
     yieldlock_init(&count_lock);
+    
+    pcb_t *test_process = create_process("test_process", false);
 
-    tcb_t* thread = create_thread(
+    tcb_t* thread = create_thread( test_process,
       "test", first_thread, THREAD_DEFAULT_PRIORITY, false);
 
-    tcb_t* secthread = create_thread(
+    tcb_t* secthread = create_thread( test_process,
       "test", second_thread, THREAD_DEFAULT_PRIORITY, false);
 
     thread->status = TASK_READY;

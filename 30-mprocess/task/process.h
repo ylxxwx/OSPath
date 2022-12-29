@@ -20,7 +20,7 @@ typedef struct pcb{
     int32 exit_code;
     int32 is_kernel_process;
     // page directory
-    page_directory_t page_dir;
+    page_directory_t *page_dir;
 } pcb_t;
 
 pcb_t *create_process(char *name, int is_kernel_process);

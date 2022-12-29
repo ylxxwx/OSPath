@@ -4,11 +4,9 @@
 #include "panic.h"
 
 /*
-    frame bit(idx, offset) <--> physical address 1:1 mapping.
     virtual address <--> page 1:1 mapping
 */
 
-u32 *frames;
 u32 nframes;
 u8 *frame_user_count;
 
@@ -16,44 +14,33 @@ extern u32 placement_address;
 
 void init_frames(u32 mem_size) {
     nframes = mem_size / 0x1000;
-    frames = (u32 *)kmalloc_nofree(INDEX_FROM_BIT(nframes));
-    kmemset((u8 *)frames, 0, INDEX_FROM_BIT(nframes));
     frame_user_count = (u32 *)kmalloc_nofree(sizeof(u8)*nframes);
+    kmemset((u8 *)frame_user_count, 0, sizeof(u8)*nframes);
 }
 
-static void set_frame(u32 frame_addr) {
-    u32 frame = frame_addr /0x1000;
-    u32 idx = INDEX_FROM_BIT(frame);
-    u32 off = OFFSET_FROM_BIT(frame);
-    frames[idx] |= (0x1 << off);
+void set_frame(u32 frame_id) {
+    frame_user_count[frame_id]++;
 }
 
-static void clear_frame(u32 frame_addr) {
-    u32 frame = frame_addr / 0x1000;
-    u32 idx = INDEX_FROM_BIT(frame);
-    u32 off = OFFSET_FROM_BIT(frame);
-    frames[idx] &= ~(0x1 << off);
+void clear_frame(u32 frame_id) {
+    frame_user_count[frame_id]--;
+}
+
+u32  get_frame_user_count(u32 frame_id) {
+    return frame_user_count[frame_id];
 }
 
 static u32 test_frame(u32 frame_addr) {
     u32 frame = frame_addr / 0x1000;
-    u32 idx = INDEX_FROM_BIT(frame);
-    u32 off = OFFSET_FROM_BIT(frame);
-    return (frames[idx] & (0x1 << off));
+    return frame_user_count[frame] > 0;
 }
 
 static u32 first_frame() {
-    u32 i, j;
-    for (i = 0; i < INDEX_FROM_BIT(nframes); i++) {
-        if (frames[i] != 0xFFFFFFFF) {
-            for (j = 0; j < 32; j++) {
-                u32 toTest = 0x1 << j;
-                if ( !(frames[i]&toTest)) {
-                    return i*4*8 + j;
-                }
-            }
-        }
+    for (int idx = 0; idx < nframes; idx++) {
+        if (frame_user_count[idx] == 0)
+            return idx;
     }
+    panic("Can't found free frame.");
     return 0;
 }
 
@@ -62,10 +49,7 @@ void alloc_frame(page_t *page, int is_kernel, int is_writeable) {
         return;
     } else {
         u32 idx = first_frame();
-        if (idx == (u32) -1) {
-            panic("No Free frames!");
-        }
-        set_frame(idx*0x1000);
+        set_frame(idx);
         page->present = 1;
         page->rw = (is_writeable)?1:0;
         page->user = (is_kernel)?0:1;
@@ -91,3 +75,23 @@ void map_address(u32 vaddr, int is_kernel, int is_writable) {
   }
   alloc_frame(page, is_kernel, is_writable);
 }
+
+/*
+void map_addr_phy(u32 vaddr, u32 paddr, int is_kernel, int is_writable) {
+  page_t *page = get_page(vaddr, 1, current_directory);
+  if (page == 0) {
+    panic("Get page failed");
+    return;
+  }
+  if (page->frame != 0) {
+    panic("try to map a vaddr to a paddr, but there is a mapping.");
+  } else {
+        u32 idx = paddr/0x1000;
+        set_frame(idx);
+        page->present = 1;
+        page->rw = (is_writable)?1:0;
+        page->user = (is_kernel)?0:1;
+        page->frame = idx;
+    }
+}
+*/

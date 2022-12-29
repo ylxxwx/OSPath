@@ -24,10 +24,12 @@ u32 vaddr_to_paddr(u32 address) {
     return phyAddr;
 }
 
-
 void switch_page_directory(page_directory_t *dir)
 {
-    asm("mov %0, %%cr3" ::"r"(&dir->tablesPhysical));
+    current_directory = dir;
+    //kprintf("page dir:v:%x, p:%x\n", &dir->tablesPhysical, vaddr_to_paddr(&dir->tablesPhysical));
+    //panic("stop");
+    asm("mov %0, %%cr3" ::"r"(vaddr_to_paddr(&dir->tablesPhysical)));
     u32 cr0;
     asm("mov %%cr0, %0"
         : "=r"(cr0));
@@ -73,6 +75,9 @@ page_directory_t *clone_crt_page_dir(page_directory_t *src) {
   //
   // First, map the new page dir.
   page_directory_t *copied_page_dir = (uint32)(page_directory_t *)kmalloc_a(sizeof(page_directory_t), 1);
+  if (copied_page_dir == 0)
+    panic("clone crt failed. no memory.");
+
   u32 new_pd_frame = vaddr_to_paddr(copied_page_dir);
   kmemset((u8*)copied_page_dir, 0, sizeof(page_directory_t));
 
@@ -93,31 +98,36 @@ page_directory_t *clone_crt_page_dir(page_directory_t *src) {
     if (src_table == 0) {
       continue;
     }
-
+    //kprintf("clone page table. found a user table. %d\n", i);
     // Alloc a new frame for copied page table.
     u32 vaddr = (u32)kmalloc_a(PAGE_SIZE, 1);
     if (vaddr == 0) {
         panic("allocate page table failed.");
     }
-
-    u32 new_pt_frame = 
-
     // Copy page table and set ptes copy-on-write.
-    copied_page_dir->tablesPhysical[i] = vaddr_to_paddr(vaddr);
-    page_table_t *dst_table = (page_table_t *)vaddr;
-    *dst_table = *src_table;
+    copied_page_dir->tablesPhysical[i] = vaddr_to_paddr(vaddr) | 0x07;;
+    copied_page_dir->tables[i] = vaddr;
 
+    //kprintf("clone page table. found a user table. idx:%d va:%x, pa:%x\n", i, vaddr, copied_page_dir->tablesPhysical[i]);
+    
+    page_table_t *dst_table = (page_table_t *)vaddr;
+    kmemset((u8*) vaddr, 0, PAGE_SIZE);
+    //*dst_table = *src_table;
     for (int j = 0; j < 1024; j++) {
       page_t* src_page = &src_table->pages[j];
       page_t* dst_page = &dst_table->pages[j];
       if (!src_page->present) {
         continue;
       }
-      //*dst_page = *src_page;
+      //kprintf("clone page table. found a user page. %d. paddr:%x\n", j, src_page->frame);
+      *dst_page = *src_page;
       // Mark copy-on-write: increase copy-on-write ref count.
       src_page->rw = 0;
       dst_page->rw = 0;
-      //int32 cow_refs = change_cow_frame_refcount(src_page->frame, 1);
+      dst_page->present = 1;
+      dst_page->user = 1;
+      //dst_page->ker
+      set_frame(src_page->frame);
     }
   }
   return copied_page_dir;

@@ -6,9 +6,10 @@
 2. first step,
     a) support one thread per process.
     to do list
-     1) sys_fork
-     2) copy page table
-     3) new thread?
-     3) switch context
-     4) copy on write
+     1) sys_fork                   done.
+     2) copy page table            done.
+     3) new thread?                
+     3) switch context             done.
+     4) copy on write              done.
      5) sys_exec
+     6) exit.

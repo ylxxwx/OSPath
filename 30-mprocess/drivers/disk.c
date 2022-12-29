@@ -11,7 +11,7 @@ typedef struct {
     int task_id;
     int tart_sector;
     int num;
-    u8 *buf;
+    u8  buf[512];
     int status;
     int response;
 } hd_req_t;
@@ -71,7 +71,7 @@ void hd_read_req_one_sector(int sec_id, u8 * buf) {
     disable_interrupt();
     free_cur_req();
     hd_req_t *req = (hd_req_t *)kmalloc(sizeof(hd_req_t));
-    req->buf = buf;
+    //req->buf = buf;
     req->task_id = cur_task_id;
     req->tart_sector = sec_id;
     req->num = 1;
@@ -84,6 +84,7 @@ void hd_read_req_one_sector(int sec_id, u8 * buf) {
     while(cur_hd_req->response == 0) {
         do_context_switch();
     }
+    kmemcpy(buf, cur_hd_req->buf, 512);
 }
 
 int read_sector(disk_t *disk, int sec_id, int num, u8* buf) {

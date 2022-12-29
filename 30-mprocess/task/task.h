@@ -2,6 +2,7 @@
 #define TASK_THREAD_H
 
 #include "type.h"
+#include "process.h"
 #include "isr.h"
 
 #define KERNEL_MAIN_STACK_TOP    0xF0000000
@@ -38,7 +39,8 @@ typedef struct task_struct {
   // timer ticks this thread has been running for.
   uint32 ticks;
   // pointer to its process
-  struct process_struct* process;
+  //struct process_struct* process;
+  pcb_t *process;
   // user stack
   uint32 user_stack;
   int32 user_stack_index;
@@ -76,14 +78,14 @@ void mov_task_ready(int task_id);
 void mov_task_wait(int task_id);
 
 // Create a new thread.
-tcb_t* create_thread(char* name, thread_func function, uint32 priority, uint8 user);
-tcb_t* create_user_thread(char* name, void* function);
+tcb_t* create_thread(pcb_t *, char* name, thread_func function, uint32 priority, uint8 user);
+tcb_t* create_user_thread(pcb_t *, char* name, void* function);
 uint32 prepare_user_stack(tcb_t* thread, uint32 stack_top, uint32 argc, char** argv, uint32 return_addr);
 
 tcb_t* fork_crt_thread();
 
 void destroy_thread(tcb_t* thread);
 
-tcb_t* create_kernel_thread(char* name, void* function);
+tcb_t* create_kernel_thread(pcb_t *,char* name, void* function);
 int get_next_ready_task();
 #endif

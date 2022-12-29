@@ -6,6 +6,8 @@
 #include "keyboard.h"
 #include "vfs.h"
 
+extern int cur_task_id;
+
 typedef s32 (*sys_func) (registers_t *regs);
 
 static s32 syscall_handler(registers_t *regs);
@@ -51,10 +53,8 @@ s32 sys_kstd_input(registers_t *regs) {
 }
 
 s32 sys_kprint(registers_t *regs) {
-    
     char *fmt = (char *)regs->ebx;
     void *args = (void *)regs->ecx;
-    //kprintf("sys_kprint. %s\n", fmt);
     kprintf_args(fmt, args);
     return 3;
 }
@@ -66,7 +66,6 @@ s32 ksys_sleep(registers_t *regs) {
 }
 
 s32 sys_kstd_clear_screen(registers_t *regs) {
-    //kprintf("sys call sleep...\n");
     clear_screen();
     return 3;
 }
@@ -74,7 +73,6 @@ s32 sys_kstd_clear_screen(registers_t *regs) {
 s32 mount_hd(registers_t *regs) {
     kprintf("sys mount maj:%d, min:%d, part:%d\n", regs->ebx, regs->ecx, regs->edx);
     
-    //init_hd();
     disk_t t;
     t.major = 1;
     t.minor = 0;

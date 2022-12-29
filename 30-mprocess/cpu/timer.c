@@ -7,30 +7,32 @@
 
 u32 tick = 0;
 
-static void timer_callback(registers_t *regs) {    
-    //kprintf("Timer interrupt.\n");
+static void timer_callback(registers_t *regs)
+{
+    // kprintf("Timer interrupt.\n");
     tcb_t *cur = &tcb[cur_task_id];
     cur->ticks++;
 
-    if (cur->ticks > 10) {
+    if (cur->ticks > 10)
+    {
         do_context_switch();
     }
-    
+
     tick++;
     UNUSED(regs);
 }
 
-void init_timer(u32 freq) {
+void init_timer(u32 freq)
+{
     /* Install the function we just wrote */
     register_interrupt_handler(IRQ0, timer_callback);
 
     /* Get the PIT value: hardware clock at 1193180 Hz */
-    u32 divisor = 0xFFFF;//1193180 / freq;
-    u8 low  = (u8)(divisor & 0xFF);
-    u8 high = (u8)( (divisor >> 8) & 0xFF);
+    u32 divisor = 0xFFFF; // 1193180 / freq;
+    u8 low = (u8)(divisor & 0xFF);
+    u8 high = (u8)((divisor >> 8) & 0xFF);
     /* Send the command */
     port_byte_out(0x43, 0x36); /* Command port */
     port_byte_out(0x40, low);
     port_byte_out(0x40, high);
 }
-

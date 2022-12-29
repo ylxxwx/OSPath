@@ -12,7 +12,8 @@
 #include "disk.h"
 #include "vfs.h"
 
-void init_rootfs() {
+void init_rootfs()
+{
     disk_t disk;
     disk.major = 1;
     disk.minor = 0;

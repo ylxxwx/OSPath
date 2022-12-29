@@ -5,6 +5,7 @@
 #include "frame.h"
 #include "schedule.h"
 #include "vfs.h"
+#include "process.h"
 
 #define MAX_TASK_ID 16
 extern tss_entry_t tss_entry;
@@ -25,8 +26,12 @@ void mov_task_wait(int task_id) {
 }
 
 static void kernel_main_thread() {
-  //enable_interrupt();
-  // Enter cpu idle.
+  prepare_first_user_program();
+
+  pcb_t *init_process = create_process("init_process", false);
+  tcb_t* user_thread = create_user_thread(init_process, "main", (void*)/*user_func*/0xA0000000);
+  user_thread->status = TASK_READY;
+
   int count = 0;
   while (true) {
     count++;
@@ -52,13 +57,14 @@ void init_task() {
     tcb[idx].status = TASK_DEAD;
   }
   cur_avail_id = 0;
-
-  prepare_first_user_program();
   
-  tcb_t* main_thread = create_kernel_thread("main", (void*)kernel_main_thread);
+  pcb_t *main_process = create_process("kernel_main_process", /* is_kernel_process = */true);
+  
+  tcb_t* main_thread = create_kernel_thread(main_process, "main", (void*)kernel_main_thread);
   main_thread->status = TASK_READY;
-  tcb_t* user_thread = create_user_thread("main", (void*)/*user_func*/0xA0000000);
-  user_thread->status = TASK_READY;
+
+  switch_page_directory(main_process->page_dir);
+  panic("init task go to main thread.");
   //kprintf("task Create state: %d-%d-%d-%d\n", tcb[0].status, tcb[1].status, tcb[2].status, tcb[3].status);
   asm volatile (
    "movl %0, %%esp; \
@@ -83,7 +89,7 @@ static void kernel_thread(thread_func* function) {
   schedule_thread_exit();
 }
 
-tcb_t* create_thread(char* name, thread_func function, u32 priority, uint8 user) {
+tcb_t* create_thread(pcb_t *pcb, char* name, thread_func function, u32 priority, uint8 user) {
   u32 id = cur_avail_id++;
   //kprintf("create thread avil id: %d \n", cur_avail_id);
   tcb_t *thread = &tcb[id];
@@ -102,7 +108,7 @@ tcb_t* create_thread(char* name, thread_func function, u32 priority, uint8 user)
   thread->ticks = 0;
   thread->priority = priority;
   thread->user_stack_index = -1;
-
+  thread->process = pcb;
   // Init thread stack.
   uint32 kernel_stack = (uint32)kmalloc_a(KERNEL_STACK_SIZE, 1);
   //kprintf("stack memory: %x\n", kernel_stack);
@@ -112,7 +118,7 @@ tcb_t* create_thread(char* name, thread_func function, u32 priority, uint8 user)
   thread->kernel_esp =
       kernel_stack + (u32)KERNEL_STACK_SIZE - (u32)(sizeof(interrupt_stack_t) + sizeof(switch_stack_t));
   switch_stack_t* switch_stack = (switch_stack_t*)thread->kernel_esp;
-  kprintf("thread kernel stack:%x, top:%x\n", kernel_stack, kernel_stack+(u32)KERNEL_STACK_SIZE);
+  //kprintf("thread kernel stack:%x, top:%x\n", kernel_stack, kernel_stack+(u32)KERNEL_STACK_SIZE);
 
   switch_stack->edi = 0;
   switch_stack->esi = 0;
@@ -123,9 +129,9 @@ tcb_t* create_thread(char* name, thread_func function, u32 priority, uint8 user)
   switch_stack->eax = 0;
 
   switch_stack->thread_entry_eip = (uint32)kernel_thread;
-  kprintf("task kernel function start.\n");
+  //kprintf("task kernel function start.\n");
   switch_stack->function = function;
-  kprintf("task kernel function end.\n");
+  //kprintf("task kernel function end.\n");
 
   // For user thread, there are some more steps to do:
   //  - Prepare the kernel interrupt stack context for later to switch to user mode.
@@ -153,9 +159,9 @@ tcb_t* create_thread(char* name, thread_func function, u32 priority, uint8 user)
     interrupt_stack->eax = 0;
 
     // user-level code env
-    kprintf("task us function start.\n");
+    //kprintf("task us function start.\n");
     interrupt_stack->eip = (u32)function;
-    kprintf("task us function end.\n");
+    //kprintf("task us function end.\n");
     interrupt_stack->cs = SELECTOR_U_CODE;
     interrupt_stack->eflags = EFLAGS_IOPL_0 | EFLAGS_MBS | EFLAGS_IF_1;
 
@@ -172,8 +178,8 @@ void destroy_thread(tcb_t* thread) {
   //kfree(thread);
 }
 
-tcb_t* create_kernel_thread(char* name, void* function) {
-  return create_thread(name, function, THREAD_DEFAULT_PRIORITY, false);
+tcb_t* create_kernel_thread(pcb_t *pcb, char* name, void* function) {
+  return create_thread(pcb, name, function, THREAD_DEFAULT_PRIORITY, false);
 }
 
 #define USER_STACK_TOP   0xC0000000  // 0xC0000000 - 4MB
@@ -196,8 +202,8 @@ uint32 prepare_user_stack(
   return stack_top;
 }
 
-tcb_t* create_user_thread(char* name, void* function) {
-  tcb_t * task = create_thread(name, function, THREAD_DEFAULT_PRIORITY, true);
+tcb_t* create_user_thread(pcb_t * pcb, char* name, void* function) {
+  tcb_t * task = create_thread(pcb, name, function, THREAD_DEFAULT_PRIORITY, true);
   int stack_index = 1;
   task->user_stack_index = stack_index;
   uint32 thread_stack_top = USER_STACK_TOP - stack_index * USER_STACK_SIZE;

@@ -2,10 +2,12 @@
 #include "inter.h"
 #include "task.h"
 #include "gdt.h"
+#include "process.h"
 
 extern void context_switch(tcb_t* crt, tcb_t* next);
 
 void do_context_switch() {
+  
   tcb_t* old_thread = &tcb[cur_task_id];
   int next_id = get_next_ready_task();
   //kprintf("do cs, old id:%d, next:%d\n", cur_task_id, next_id);
@@ -15,6 +17,7 @@ void do_context_switch() {
     next_id = 0;
   }
 
+  disable_interrupt();
   tcb_t* next_thread = &tcb[next_id];
 
   // Switch out current running thread.
@@ -30,7 +33,10 @@ void do_context_switch() {
 
   //kprintf("update tss to: %x\n", next_thread->kernel_stack + KERNEL_STACK_SIZE);
   update_tss_esp(next_thread->kernel_stack + KERNEL_STACK_SIZE);
-
+  //kprintf("context switch from :%x to :%x\n", old_thread->id, next_thread->id);
+  if (old_thread->process != next_thread->process) {
+    switch_page_directory(next_thread->process->page_dir);
+  }
   //monitor_printf("thread %u switch to thread %u\n", old_thread->id, next_thread->id);
   context_switch(old_thread, next_thread);
 }

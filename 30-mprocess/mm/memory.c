@@ -36,7 +36,7 @@ void init_memory() {
 
     current_directory = k_dir;
     kernel_directory  = k_dir;
-
+    //kprintf("kernel dir:%x\n", k_dir);
 
     // first 2M mapping.
     set_addr_mapping(0, 0x00200000, k_dir);
