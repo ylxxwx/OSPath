@@ -19,7 +19,7 @@ s32 ksys_sleep(registers_t *regs)
     return 2;
 }
 
-s32 sys_kstd_clear_screen(registers_t *regs)
+s32 ksys_cls(registers_t *regs)
 {
     clear_screen();
     return 3;
@@ -28,15 +28,15 @@ s32 sys_kstd_clear_screen(registers_t *regs)
 static void *syscalls[] = {
     &ksys_sleep,
     &ksys_sleep,
-    &mount_hd,
-    &sys_kprint,
-    &sys_kstd_input,
-    &sys_kstd_clear_screen,
+    &ksys_mount,
+    &ksys_print,
+    &ksys_input,
+    &ksys_cls,
     &ksys_ls,
     &ksys_cd_dir,
     &ksys_read_file,
     &ksys_pwd,
-    &ksys_nil,
+    &ksys_exit,
     &ksys_nil,
     &ksys_fork,
 };

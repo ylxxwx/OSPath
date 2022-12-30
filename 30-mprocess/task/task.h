@@ -79,6 +79,7 @@ void init_task();
 
 void mov_task_ready(int task_id);
 void mov_task_wait(int task_id);
+void mov_cur_task_dead();
 
 // Create a new thread.
 tcb_t *create_thread(pcb_t *, char *name, thread_func function, uint32 priority, uint8 user);

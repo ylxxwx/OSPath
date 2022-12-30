@@ -201,6 +201,8 @@ void execCmd(int cmd, int argc, char argv[][80])
         output("out of fork: ret:%d\n", ret);
         if (ret = 0)
         {
+            //  output("This is child thread.exit..\n");
+            //  sys_exit();
             while (1)
                 sys_sleep();
         }

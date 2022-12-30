@@ -26,6 +26,7 @@ tcb_t *fork_crt_thread()
   tcb_t *thread = &tcb[id];
   if (thread == 0)
   {
+    panic("for_crt_thread no thread available.");
     return 0;
   }
   kmemcpy((void *)thread, (void *)get_cur_thread(), sizeof(struct task_struct));
@@ -41,14 +42,14 @@ tcb_t *fork_crt_thread()
   // allocate kernel stack
   uint32 kernel_stack = (uint32)kmalloc_a(KERNEL_STACK_SIZE, 1);
   thread->kernel_stack = kernel_stack;
-  kmemcpy((void *)kernel_stack, (void *)cur_thread->kernel_stack, KERNEL_STACK_SIZE);
+  kmemcpy((u8 *)kernel_stack, (u8 *)cur_thread->kernel_stack, KERNEL_STACK_SIZE);
 
   thread->kernel_esp =
       kernel_stack + KERNEL_STACK_SIZE - (sizeof(interrupt_stack_t) + sizeof(switch_stack_t));
 
   interrupt_stack_t *interrupt_stack =
       (interrupt_stack_t *)(thread->kernel_esp + sizeof(switch_stack_t));
-
+  kprintf("new thread interrupt_stack:%x\n", interrupt_stack);
   switch_stack_t *switch_stack = (switch_stack_t *)thread->kernel_esp;
   switch_stack->thread_entry_eip = (uint32)syscall_fork_exit;
 
@@ -58,6 +59,11 @@ tcb_t *fork_crt_thread()
 tcb_t *get_cur_thread()
 {
   return &tcb[cur_task_id];
+}
+
+void mov_cur_task_dead()
+{
+  tcb[cur_task_id].status = TASK_DEAD;
 }
 
 void mov_task_ready(int task_id)

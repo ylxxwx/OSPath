@@ -25,13 +25,13 @@ s32 ksys_cd_dir(registers_t *regs)
     return 7;
 }
 
-s32 sys_kstd_input(registers_t *regs)
+s32 ksys_input(registers_t *regs)
 {
     u8 *buf = (u8 *)regs->ebx;
     return kb_read(buf);
 }
 
-s32 sys_kprint(registers_t *regs)
+s32 ksys_print(registers_t *regs)
 {
     char *fmt = (char *)regs->ebx;
     void *args = (void *)regs->ecx;
@@ -39,7 +39,7 @@ s32 sys_kprint(registers_t *regs)
     return 3;
 }
 
-s32 mount_hd(registers_t *regs)
+s32 ksys_mount(registers_t *regs)
 {
     kprintf("sys mount maj:%d, min:%d, part:%d\n", regs->ebx, regs->ecx, regs->edx);
 

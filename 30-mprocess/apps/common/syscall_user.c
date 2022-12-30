@@ -5,6 +5,7 @@
 #define SYS_CLS 0x05
 #define SYS_LS 0x06
 #define SYS_PWD 0x09
+#define SYS_EXIT 0x0A
 #define SYS_FORK 0x0C
 
 s32 sys_general(u32 sys_id, u32 param1, u32 param2)
@@ -39,6 +40,7 @@ s32 sys_general(u32 sys_id, u32 param1, u32 param2)
 SYS_PARAM_ZERO(sys_sleep, SYS_SLEEP)
 SYS_PARAM_ZERO(sys_cls, SYS_CLS)
 SYS_PARAM_ZERO(sys_pwd, SYS_PWD)
+SYS_PARAM_ZERO(sys_exit, SYS_EXIT)
 SYS_PARAM_ZERO(sys_fork, SYS_FORK)
 SYS_PARAM_ONE(sys_input, SYS_INPUT)
 SYS_PARAM_ONE(sys_ls, SYS_LS)

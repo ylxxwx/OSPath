@@ -127,7 +127,10 @@ void isr_handler(registers_t *r)
     // if (r->int_no < 32)
     //    kprintf("\nGot interrupt: %d, %s, %x\n",r->int_no, exception_messages[r->int_no], r->err_code);
     if (r->int_no == 0 || r->int_no == 6 || r->int_no == 13)
+    {
+        kprintf("\nGot interrupt: %d, %s, %x\n", r->int_no, exception_messages[r->int_no], r->err_code);
         panic("non recoverable.()");
+    }
 
     if (interrupt_handlers[r->int_no] != 0)
     {
