@@ -1,7 +1,7 @@
 ISOBUILDDIR=../mkfile/buildiso
 
 iso: os.iso
-	qemu-system-x86_64 -boot d -cdrom os.iso -drive format=raw,id=disk,file=../mkfile/hda.img
+	qemu-system-x86_64 -m 64m -boot d -cdrom os.iso -drive format=raw,id=disk,file=../mkfile/hda.img
 dbgiso: os.iso
 	bochsdbg -f ../mkfile/bochsenv/bochsiso.bochsrc
 os.iso: kernel.elf
