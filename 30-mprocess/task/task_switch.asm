@@ -4,6 +4,7 @@
 [global syscall_fork_exit]
 [extern interrupt_exit]
 [extern kprint_hex]
+[extern kprintln]
 
 context_switch:
   push eax
@@ -40,9 +41,10 @@ syscall_fork_exit:
   ; move esp to interrupt stack
   add esp, 8
 
-  push esp
-  call kprint_hex
-  pop esp
+  ;push esp
+  ;call kprint_hex
+  ;call kprintln
+  ;pop esp
 
   ; recover the original data segment.
   pop ecx

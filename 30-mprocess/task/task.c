@@ -18,6 +18,50 @@ tcb_t tcb[MAX_TASK_ID];
 
 extern void resume_thread();
 
+void show_cur_task(char *prex)
+{
+  // switch_stack_t *switch_stack = tcb[cur_task_id].kernel_stack;
+  // interrupt_stack_t *interrupt_stack = tcb[cur_task_id].kernel_stack + sizeof(switch_stack_t);
+
+  // kprintf("%s: tid(%d) interrupt ret:%x\n", prex, cur_task_id, interrupt_stack->eip);
+  //  kprintf("%s: cur thread:%d, \n", prex, cur_task_id);
+  //  kprint_hex(get_ebp());
+  //  switch_stack_t *switch_stack = tcb[cur_task_id].kernel_stack;
+  //  interrupt_stack_t *interrupt_stack = tcb[cur_task_id].kernel_stack + sizeof(switch_stack_t);
+  //  kprintf(" %s: cur thread:%d, switch:%x interrupt ret:%x\n", prex, cur_task_id, switch_stack, switch_stack->function);
+}
+
+char *status_str(task_status_t status)
+{
+  switch (status)
+  {
+  case TASK_UNINIT:
+    return "Unused";
+  case TASK_DEAD:
+    return "DEAD";
+  case TASK_READY:
+    return "Ready";
+  case TASK_RUNNING:
+    return "Running";
+  case TASK_WAITING:
+    return "Waiting";
+  default:
+    return "Unknown";
+  }
+  return "NULL";
+}
+
+void show_task()
+{
+  kprintf("task id       task status\n");
+  for (int idx = 0; idx < MAX_TASK_ID; idx++)
+  {
+    if (tcb[idx].status == TASK_UNINIT)
+      continue;
+    kprintf("%d            %s\n", tcb[idx].id, status_str(tcb[idx].status));
+  }
+}
+
 tcb_t *fork_crt_thread()
 {
   tcb_t *cur_thread = get_cur_thread();
@@ -49,7 +93,6 @@ tcb_t *fork_crt_thread()
 
   interrupt_stack_t *interrupt_stack =
       (interrupt_stack_t *)(thread->kernel_esp + sizeof(switch_stack_t));
-  kprintf("new thread interrupt_stack:%x\n", interrupt_stack);
   switch_stack_t *switch_stack = (switch_stack_t *)thread->kernel_esp;
   switch_stack->thread_entry_eip = (uint32)syscall_fork_exit;
 
@@ -111,7 +154,7 @@ void init_task()
   for (int idx = 0; idx < MAX_TASK_ID; idx++)
   {
     tcb[idx].id = idx;
-    tcb[idx].status = TASK_DEAD;
+    tcb[idx].status = TASK_UNINIT;
   }
   cur_avail_id = 0;
 
@@ -173,7 +216,7 @@ tcb_t *create_thread(pcb_t *pcb, char *name, thread_func function, u32 priority,
   }
   // kprintf("create thread :%d\n", thread->id);
 
-  thread->status = TASK_DEAD;
+  thread->status = TASK_UNINIT;
   thread->ticks = 0;
   thread->priority = priority;
   thread->user_stack_index = -1;

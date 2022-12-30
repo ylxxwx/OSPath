@@ -47,8 +47,9 @@ void page_fault(registers_t *regs)
    {
       if (rw != 0 && page->rw == 0)
       {
-         u8 frame_id = page->frame;
-         if (1 == get_frame_user_count(frame_id))
+         u32 frame_id = page->frame;
+         // kprintf("page:%d, copy on write, count:%d\n", page->frame, get_frame_user_count(frame_id));
+         if (get_frame_user_count(frame_id) == 1)
          {
             // panic("not sure if we can get here.");
             page->user = 1;
@@ -58,20 +59,29 @@ void page_fault(registers_t *regs)
          }
 
          u8 *vAddr = faulting_address;
-         u8 *temp = (u8 *)kmalloc(PAGE_SIZE);
-         kmemcpy(temp, ((u32)vAddr) & 0xFFFFF000, PAGE_SIZE);
-
+         __volatile__ u8 *temp = (u8 *)0; // kmalloc_a(PAGE_SIZE, 1);
+         kmemcpy(temp, (((u32)vAddr) & 0xFFFFF000), PAGE_SIZE);
          page->frame = 0;
          alloc_frame(page, 0, 1);
-         kmemcpy(((u32)vAddr) & 0xFFFFF000, temp, PAGE_SIZE);
+         switch_page_directory(current_directory);
+         kmemcpy((((u32)vAddr) & 0xFFFFF000), temp, PAGE_SIZE);
          page->user = 1;
          page->rw = 1;
          page->present = 1;
-         // switch_page_directory(current_directory);
-
+         switch_page_directory(current_directory);
          clear_frame(frame_id);
          return;
       }
+      else
+      {
+         kprintf("Page fault!(%x | %s | %s | %s | %d) @%x \n",
+                 regs->err_code,
+                 present ? "present" : "not present",
+                 rw ? "write" : "read",
+                 us ? "user mode" : "kernel mode",
+                 id, faulting_address);
+      }
    }
+
    panic("Page fault");
 }

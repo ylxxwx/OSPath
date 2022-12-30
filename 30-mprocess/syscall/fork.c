@@ -8,7 +8,7 @@
 
 s32 ksys_exit(registers_t *regs)
 {
-    kprintf("ksys_exit.\n");
+    show_cur_task("exit:");
     mov_cur_task_dead();
     do_context_switch();
     kprintf("will not reach here ksys_exit.\n");
@@ -16,7 +16,7 @@ s32 ksys_exit(registers_t *regs)
 
 s32 ksys_fork(registers_t *regs)
 {
-    kprintf("sys calll: fork:\n");
+    // show_cur_task("fork:");
 
     tcb_t *thread = fork_crt_thread();
     if (thread == 0)
@@ -32,6 +32,14 @@ s32 ksys_fork(registers_t *regs)
     thread->process = process;
 
     thread->status = TASK_READY;
-
+    // kprintf("ksys_fork return 1\n");
     return 1;
+}
+
+s32 ksys_show_task(registers_t *regs)
+{
+    show_cur_task("top:");
+
+    show_task();
+    return 0;
 }

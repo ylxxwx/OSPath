@@ -13,6 +13,7 @@ INC = common
 OBJS = ${C_SOURCES:.c=.o common/entry.o}
 
 all: shell
+	./writedisk.sh
 
 shell: shell.elf 
 	objcopy -O binary shell.elf shell

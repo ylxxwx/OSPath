@@ -19,15 +19,16 @@
 
 typedef void thread_func();
 
-enum task_status
+typedef enum task_status
 {
+  TASK_UNINIT,
   TASK_RUNNING,
   TASK_READY,
   TASK_BLOCKED,
   TASK_WAITING,
   TASK_HANGING,
   TASK_DEAD
-};
+} task_status_t;
 
 typedef struct task_struct
 {
@@ -37,7 +38,7 @@ typedef struct task_struct
   uint32 id;
   char name[32];
   uint8 priority;
-  enum task_status status;
+  task_status_t status;
   // timer ticks this thread has been running for.
   uint32 ticks;
   // pointer to its process
@@ -80,7 +81,8 @@ void init_task();
 void mov_task_ready(int task_id);
 void mov_task_wait(int task_id);
 void mov_cur_task_dead();
-
+void show_task();
+void show_cur_task(char *);
 // Create a new thread.
 tcb_t *create_thread(pcb_t *, char *name, thread_func function, uint32 priority, uint8 user);
 tcb_t *create_user_thread(pcb_t *, char *name, void *function);

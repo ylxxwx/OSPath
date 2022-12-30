@@ -15,7 +15,9 @@
 #define CMD_INVALID 8
 #define CMD_PWD 9
 #define CMD_FORK 10
-int main();
+#define CMD_TOP 11
+
+// int main();
 
 void execCmd(int cmd, int argc, char argv[][80]);
 
@@ -59,7 +61,11 @@ void help(int cmd)
 const int str_2_cmd(char *str)
 {
     int cmd = CMD_INVALID;
-    if (0 == strcmp("cls", str))
+    if (0 == strcmp("top", str))
+    {
+        cmd = CMD_TOP;
+    }
+    else if (0 == strcmp("cls", str))
     {
         cmd = CMD_CLS;
     }
@@ -111,6 +117,7 @@ int main()
     {
         output(prompt);
         memset((u8 *)buf, 0, 1024);
+
         int ret = input(buf);
 
         if (strlen(buf) == 0 || buf[0] == '\n')
@@ -192,21 +199,30 @@ void execCmd(int cmd, int argc, char argv[][80])
     }
     case CMD_PWD:
     {
+        // output("pwd start...\n");
         sys_pwd();
         break;
     }
     case CMD_FORK:
     {
         int ret = sys_fork();
-        output("out of fork: ret:%d\n", ret);
+        // output("out of fork: ret:%d\n", ret);
         if (ret == 0)
         {
-            output("sys_exit:%d\n", ret);
-            sys_exit();
             while (1)
-                sys_sleep();
+            {
+                // output("sys_exit: v1 :%d:\n", ret);
+                sys_exit();
+                while (1)
+                    sys_sleep();
+                // output("out of sleep: v1 :%d:\n", ret);
+            }
         }
+        break;
     }
+    case CMD_TOP:
+        sys_top();
+        break;
     case CMD_INVALID:
     case CMD_EXIT:
     {

@@ -1,7 +1,37 @@
 #include "syscall_user.h"
 
+#define SYS_ID_SLEEP 0x01
+#define SYS_ID_TOP 0x0D
+
+s32 sys_call(u32 sys_id, u32 p1, u32 p2, u32 p3)
+{
+    s32 ret = 0;
+    __asm__ __volatile__(
+        "push %%eax;"
+        "push %%ebx;"
+        "push %%ecx;"
+        "push %%edx;" ::);
+    __asm__ __volatile__(
+        "int $0x80;"
+        "mov %%eax, %0;"
+        : "=m"(ret)
+        : "a"(sys_id), "b"(p1), "c"(p2), "d"(p3));
+    __asm__ __volatile__(
+        "pop %%edx;"
+        "pop %%ecx;"
+        "pop %%ebx;"
+        "pop %%eax;" ::);
+    return ret;
+}
+
+s32 sys_top()
+{
+    return sys_call(SYS_ID_TOP, 0, 0, 0);
+}
+
 s32 sys_sleep()
 {
+    return sys_call(SYS_ID_SLEEP, 0, 0, 0);
     s32 ret = 0;
     __asm__ __volatile__(
         "movl $0, %%eax;"
@@ -159,6 +189,8 @@ s32 sys_fork()
 
 s32 sys_exit()
 {
+    return sys_call(0xA, 0, 0, 0);
+    /*
     s32 ret = 0;
     __asm__ __volatile__(
         "movl $0xA, %%eax;"
@@ -166,4 +198,5 @@ s32 sys_exit()
         "mov %%eax, %0;"
         : "=m"(ret));
     return ret;
+    */
 }

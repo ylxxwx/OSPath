@@ -23,6 +23,7 @@ pcb_t *create_process(char *name, int is_kernel_process)
     uint32 id = find_avail_id();
     if (id == -1)
         panic("no more process resource.");
+    processes[id] = process;
     process->id = id;
     // if (name != NULL)
     //{

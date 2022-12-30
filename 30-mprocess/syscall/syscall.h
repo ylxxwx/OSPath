@@ -15,6 +15,7 @@ s32 ksys_input(registers_t *regs);
 s32 ksys_print(registers_t *regs);
 s32 ksys_fork(registers_t *regs);
 s32 ksys_exit(registers_t *regs);
+s32 ksys_show_task(registers_t *regs);
 void init_syscalls();
 
 #endif

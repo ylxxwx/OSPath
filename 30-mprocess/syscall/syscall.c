@@ -14,8 +14,11 @@ s32 ksys_nil(registers_t *regs)
 
 s32 ksys_sleep(registers_t *regs)
 {
-    kprintf("sys call sleep...\n");
+    show_cur_task("sleep:");
+
+    // kprintf("sys call sleep...\n");
     do_context_switch();
+    show_cur_task("  out of sleep:");
     return 2;
 }
 
@@ -39,6 +42,7 @@ static void *syscalls[] = {
     &ksys_exit,
     &ksys_nil,
     &ksys_fork,
+    &ksys_show_task,
 };
 
 s32 sys_handler(registers_t *r)
@@ -46,6 +50,7 @@ s32 sys_handler(registers_t *r)
     if (r->err_code < sizeof(syscalls))
     {
         sys_func func = syscalls[r->err_code];
+
         s32 ret = func(r);
         return ret;
     }

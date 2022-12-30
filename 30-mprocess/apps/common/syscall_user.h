@@ -15,4 +15,5 @@ s32 sys_cd_dir(char *dir);
 s32 sys_read_file(char *fn, char *buf);
 s32 sys_pwd();
 s32 sys_exit();
+s32 sys_top();
 #endif // _SYSCALL_USER_H_
