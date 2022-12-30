@@ -8,8 +8,8 @@
     to do list
      1) sys_fork                   done.
      2) copy page table            done.
-     3) new thread?                done. 
+     3) new thread?                
      3) switch context             done.
      4) copy on write              done.
-     5) sys_exec                   
+     5) sys_exec
      6) exit.

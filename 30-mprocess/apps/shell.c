@@ -136,7 +136,7 @@ void execCmd(int cmd, int argc, char argv[][80])
     switch (cmd)
     {
     case CMD_CLS:
-        sys_cls();
+        std_clear_screen();
         break;
     case CMD_LS:
         if (argc == 1)
@@ -199,10 +199,10 @@ void execCmd(int cmd, int argc, char argv[][80])
     {
         int ret = sys_fork();
         output("out of fork: ret:%d\n", ret);
-        if (ret = 0)
+        if (ret == 0)
         {
-            output("This is child thread.exit..\n");
-            //  sys_exit();
+            output("sys_exit:%d\n", ret);
+            sys_exit();
             while (1)
                 sys_sleep();
         }
