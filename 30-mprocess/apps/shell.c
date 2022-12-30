@@ -16,7 +16,8 @@
 #define CMD_PWD 9
 #define CMD_FORK 10
 #define CMD_TOP 11
-
+#define CMD_FSIZE 12
+#define CMD_CLS_TASK 13
 // int main();
 
 void execCmd(int cmd, int argc, char argv[][80]);
@@ -61,7 +62,15 @@ void help(int cmd)
 const int str_2_cmd(char *str)
 {
     int cmd = CMD_INVALID;
-    if (0 == strcmp("top", str))
+    if (0 == strcmp("clstask", str))
+    {
+        cmd = CMD_CLS_TASK;
+    }
+    else if (0 == strcmp("size", str))
+    {
+        cmd = CMD_FSIZE;
+    }
+    else if (0 == strcmp("top", str))
     {
         cmd = CMD_TOP;
     }
@@ -174,6 +183,9 @@ void execCmd(int cmd, int argc, char argv[][80])
         }
         else
         {
+            // int sz = sys_fsize(argv[1]);
+            // output("file:%s, size:%d\n", argv[1], sz);
+
             u8 buf[2048];
             memset(buf, 0, 2048);
             int sz = sys_read_file(argv[1], buf);
@@ -205,13 +217,13 @@ void execCmd(int cmd, int argc, char argv[][80])
     case CMD_FORK:
     {
         int ret = sys_fork();
-        output("out of fork: ret:%d\n", ret);
+        // output("out of fork: ret:%d\n", ret);
         if (ret == 0)
         {
             while (1)
             {
-                output("sys_exit: v1 :%d:\n", ret);
-                // sys_exit();
+                // output("sys_exit: v1 :%d:\n", ret);
+                sys_exit();
                 while (1)
                     sys_sleep();
                 // output("out of sleep: v1 :%d:\n", ret);
@@ -220,8 +232,29 @@ void execCmd(int cmd, int argc, char argv[][80])
         break;
     }
     case CMD_TOP:
+    {
         sys_top();
         break;
+    }
+    case CMD_FSIZE:
+    {
+        if (argc != 2)
+        {
+            output("input num:%d, expect 2.\n", argc);
+            return;
+        }
+        else
+        {
+            int sz = sys_fsize(argv[1]);
+            output("file:%s, size:%d\n", argv[1], sz);
+        }
+        break;
+    }
+    case CMD_CLS_TASK:
+    {
+        sys_cls_task();
+        break;
+    }
     case CMD_INVALID:
     case CMD_EXIT:
     {

@@ -60,6 +60,43 @@ void add_thread_to_process(pcb_t *process, tcb_t *task)
     panic("no room for this task in process.");
 }
 
+void remove_thread_from_process(pcb_t *process, tcb_t *task)
+{
+    for (int idx = 0; idx < 4; idx++)
+    {
+        if (process->threads[idx] == task)
+        {
+            process->threads[idx] = 0;
+            return;
+        }
+    }
+}
+
+void clean_process()
+{
+    for (int idx = 0; idx < 4; idx++)
+    {
+        if (processes[idx] != 0)
+        {
+            int thread_count = 0;
+            for (int j = 0; j < 4; j++)
+            {
+                if (processes[idx]->threads[j] != 0)
+                {
+                    thread_count++;
+                }
+            }
+            if (thread_count == 0)
+            {
+                if (0 != processes[idx]->page_dir)
+                    free_page_dir(processes[idx]->page_dir);
+                kfree(processes[idx]);
+                processes[idx] = 0;
+            }
+        }
+    }
+}
+
 void show_process()
 {
     kprintf("process id         thread\n");

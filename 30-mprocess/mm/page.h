@@ -38,5 +38,5 @@ page_directory_t *clone_crt_page_dir(page_directory_t *src);
 void switch_page_directory(page_directory_t *dir);
 void page_fault(registers_t *regs);
 u32 vaddr_to_paddr(u32 address);
-
+void free_page_dir(page_directory_t *src);
 #endif //_PAGE_H_

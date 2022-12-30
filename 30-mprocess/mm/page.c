@@ -146,3 +146,20 @@ page_directory_t *clone_crt_page_dir(page_directory_t *src)
   }
   return copied_page_dir;
 }
+
+void free_page_dir(page_directory_t *src)
+{
+  // Copy user space page tables.
+  for (uint32 i = 1; i < 768; i++)
+  {
+    page_table_t *src_table = src->tables[i];
+    if (src_table == 0)
+    {
+      continue;
+    }
+    // kprintf("clone page table. found a user table. %d\n", i);
+    //  Alloc a new frame for copied page table.
+    kfree((u8 *)src->tables[i]);
+  }
+  kfree(src);
+}

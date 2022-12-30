@@ -2,6 +2,8 @@
 
 #define SYS_ID_SLEEP 0x01
 #define SYS_ID_TOP 0x0D
+#define SYS_ID_FSIZE 0x0E
+#define SYS_ID_CLS_TASK 0x0F
 
 s32 sys_call(u32 sys_id, u32 p1, u32 p2, u32 p3)
 {
@@ -32,14 +34,16 @@ s32 sys_top()
 s32 sys_sleep()
 {
     return sys_call(SYS_ID_SLEEP, 0, 0, 0);
-    s32 ret = 0;
-    __asm__ __volatile__(
-        "movl $0, %%eax;"
-        "int $0x80;"
-        "mov %%eax, %0"
-        : "=m"(ret)
-        :);
-    return ret;
+}
+
+s32 sys_fsize(char *path_addr)
+{
+    return sys_call(SYS_ID_FSIZE, (u32)path_addr, 0, 0);
+}
+
+s32 sys_cls_task()
+{
+    return sys_call(SYS_ID_CLS_TASK, 0, 0, 0);
 }
 
 s32 sys_mount_root(u32 major, u32 min, u32 partition)

@@ -20,6 +20,26 @@ tcb_t tcb[MAX_TASK_ID];
 
 extern void resume_thread();
 
+void clean_task()
+{
+  for (int idx = 0; idx < MAX_TASK_ID; idx++)
+  {
+    if (tcb[idx].status == TASK_DEAD)
+    {
+      if (0 != tcb[idx].kernel_stack)
+      {
+        kfree(tcb[idx].kernel_stack);
+        tcb[idx].kernel_stack = 0;
+      }
+      if (0 != tcb[idx].process)
+      {
+        remove_thread_from_process(tcb[idx].process, &tcb[idx]);
+      }
+      tcb[idx].status = TASK_UNINIT;
+    }
+  }
+}
+
 void show_cur_task(char *prex)
 {
   // switch_stack_t *switch_stack = tcb[cur_task_id].kernel_stack;

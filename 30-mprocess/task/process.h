@@ -30,5 +30,7 @@ typedef struct pcb
 
 pcb_t *create_process(char *name, int is_kernel_process);
 void add_thread_to_process(pcb_t *process, struct task_struct *task);
+void remove_thread_from_process(pcb_t *process, struct task_struct *task);
 void show_process();
+void clean_process();
 #endif // _PROCESS_H_

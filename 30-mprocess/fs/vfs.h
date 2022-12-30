@@ -10,7 +10,8 @@ void ls_cur_dir();
 void ls_dir(char *dir);
 void cd_dir(char *path);
 void more_file(char *path);
-int vfs_read_file(char *path, u8* buf);
+int vfs_read_file(char *path, u8 *buf);
 void vfs_pwd();
+int file_size(char *fn);
 
 #endif //_VFS_H_

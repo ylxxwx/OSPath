@@ -58,3 +58,9 @@ s32 ksys_ls(registers_t *regs)
     ls_dir(dir);
     return 10;
 }
+
+s32 ksys_filesize(registers_t *regs)
+{
+    char *fn = (char *)(regs->ebx);
+    return file_size(fn);
+}

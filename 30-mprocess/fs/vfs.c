@@ -17,6 +17,7 @@ typedef struct vfs_node
     // vfs infor.
     char name[VS_NAME_LEN];
     u32 mode;
+    u32 fsize;
     u32 is_file;
     u32 is_dir;
     struct vfs_node *parent;
@@ -96,6 +97,7 @@ void sync_node(vfs_node_t *node)
     node->is_file = is_inode_file(&node->disk, node->inode_id);
     node->is_dir = is_inode_dir(&node->disk, node->inode_id);
     node->synced = 1;
+    node->fsize = get_inode_fsize(&node->disk, node->inode_id);
     trace("sync node:%d, mode:%x, is_file:%d, is_dir:%x\n",
           node->inode_id, node->mode, node->is_file, node->is_dir);
     if (node->is_dir)
@@ -237,4 +239,15 @@ void vfs_pwd()
         kprintf("/%s", node_stack[idx]->name);
     }
     kprintln();
+}
+
+int file_size(char *path)
+{
+    vfs_node_t *target = path_to_node(path);
+    if (target->is_dir)
+    {
+        trace("can't read DIR size\n");
+        return -1;
+    }
+    return target->fsize;
 }

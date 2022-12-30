@@ -41,3 +41,9 @@ s32 ksys_show_task(registers_t *regs)
     show_process();
     return 0;
 }
+
+s32 ksys_clean_task(registers_t *regs)
+{
+    clean_task();
+    clean_process();
+}

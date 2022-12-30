@@ -39,6 +39,8 @@ static void *syscalls[] = {
     &ksys_nil,
     &ksys_fork,
     &ksys_show_task,
+    &ksys_filesize,
+    &ksys_clean_task,
 };
 
 s32 sys_handler(registers_t *r)

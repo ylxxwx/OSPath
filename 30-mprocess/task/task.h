@@ -94,4 +94,5 @@ void destroy_thread(tcb_t *thread);
 
 tcb_t *create_kernel_thread(pcb_t *, char *name, void *function);
 int get_next_ready_task();
+void clean_task();
 #endif

@@ -16,4 +16,7 @@ s32 sys_read_file(char *fn, char *buf);
 s32 sys_pwd();
 s32 sys_exit();
 s32 sys_top();
+s32 sys_fsize(char *path_addr);
+s32 sys_cls_task();
+
 #endif // _SYSCALL_USER_H_
