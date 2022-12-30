@@ -43,7 +43,7 @@ typedef struct task_struct
   uint32 ticks;
   // pointer to its process
   // struct process_struct* process;
-  pcb_t *process;
+  struct pcb *process;
   // user stack
   uint32 user_stack;
   int32 user_stack_index;

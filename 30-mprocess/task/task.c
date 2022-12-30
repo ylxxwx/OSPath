@@ -1,16 +1,18 @@
-#include "screen.h"
-#include "task.h"
-#include "mem.h"
 #include "gdt.h"
 #include "frame.h"
+#include "screen.h"
+#include "task.h"
+#include "process.h"
+#include "mem.h"
 #include "schedule.h"
 #include "vfs.h"
-#include "process.h"
+#include "panic.h"
 
 #define MAX_TASK_ID 16
 extern tss_entry_t tss_entry;
 extern void switch_to_user_mode();
 extern void syscall_fork_exit();
+extern void prepare_first_user_program();
 int cur_avail_id = 0;
 
 int cur_task_id = 0;
@@ -221,6 +223,7 @@ tcb_t *create_thread(pcb_t *pcb, char *name, thread_func function, u32 priority,
   thread->priority = priority;
   thread->user_stack_index = -1;
   thread->process = pcb;
+  add_thread_to_process(pcb, thread);
   // Init thread stack.
   uint32 kernel_stack = (uint32)kmalloc_a(KERNEL_STACK_SIZE, 1);
   // kprintf("stack memory: %x\n", kernel_stack);

@@ -1,7 +1,7 @@
-#include "schedule.h"
-#include "inter.h"
-#include "task.h"
 #include "gdt.h"
+#include "inter.h"
+#include "schedule.h"
+#include "task.h"
 #include "process.h"
 
 extern void context_switch(tcb_t *crt, tcb_t *next);

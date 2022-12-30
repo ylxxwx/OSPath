@@ -2,8 +2,8 @@
 #include "isr.h"
 #include "panic.h"
 #include "screen.h"
-#include "process.h"
 #include "task.h"
+#include "process.h"
 #include "schedule.h"
 
 s32 ksys_exit(registers_t *regs)
@@ -17,13 +17,12 @@ s32 ksys_exit(registers_t *regs)
 s32 ksys_fork(registers_t *regs)
 {
     // show_cur_task("fork:");
-
+    // Create a new process, with page directory cloned from this process.
+    pcb_t *process = create_process("new", /* is_kernel_process = */ false);
     tcb_t *thread = fork_crt_thread();
     if (thread == 0)
         panic("clone thread failed.");
-
-    // Create a new process, with page directory cloned from this process.
-    pcb_t *process = create_process("new", /* is_kernel_process = */ false);
+    add_thread_to_process(process, thread);
 
     pcb_t *parent_process = get_cur_thread()->process;
     process->parent = parent_process;
@@ -38,8 +37,7 @@ s32 ksys_fork(registers_t *regs)
 
 s32 ksys_show_task(registers_t *regs)
 {
-    show_cur_task("top:");
-
     show_task();
+    show_process();
     return 0;
 }

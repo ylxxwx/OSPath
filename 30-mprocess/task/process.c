@@ -1,5 +1,8 @@
+#include "screen.h"
+#include "task.h"
 #include "process.h"
 #include "string.h"
+#include "mem.h"
 #include "panic.h"
 
 static pcb_t *processes[4];
@@ -18,7 +21,7 @@ int find_avail_id()
 pcb_t *create_process(char *name, int is_kernel_process)
 {
     pcb_t *process = (pcb_t *)kmalloc(sizeof(pcb_t));
-    kmemset(process, 0, sizeof(pcb_t));
+    kmemset((u8 *)process, 0, sizeof(pcb_t));
 
     uint32 id = find_avail_id();
     if (id == -1)
@@ -42,4 +45,37 @@ pcb_t *create_process(char *name, int is_kernel_process)
     process->page_dir = clone_crt_page_dir(current_directory);
     // kprintf("process dir:va:%x pa:%x\n", process->page_dir->tablesPhysical, vaddr_to_paddr(process->page_dir->tablesPhysical));
     return process;
+}
+
+void add_thread_to_process(pcb_t *process, tcb_t *task)
+{
+    for (int idx = 0; idx < 4; idx++)
+    {
+        if (process->threads[idx] == 0)
+        {
+            process->threads[idx] = task;
+            return;
+        }
+    }
+    panic("no room for this task in process.");
+}
+
+void show_process()
+{
+    kprintf("process id         thread\n");
+    for (int idx = 0; idx < 4; idx++)
+    {
+        if (processes[idx] != 0)
+        {
+            kprintf("%d          ", idx);
+            for (int j = 0; j < 4; j++)
+            {
+                if (processes[idx]->threads[j] != 0)
+                {
+                    kprintf("  %x", processes[idx]->threads[j]->id);
+                }
+            }
+            kprintln();
+        }
+    }
 }

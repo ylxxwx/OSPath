@@ -1,6 +1,7 @@
 #include "isr.h"
 #include "type.h"
 #include "screen.h"
+#include "mem.h"
 #include "memory.h"
 #include "page.h"
 #include "panic.h"
@@ -58,13 +59,13 @@ void page_fault(registers_t *regs)
             return;
          }
 
-         u8 *vAddr = faulting_address;
-         __volatile__ u8 *temp = (u8 *)0; // kmalloc_a(PAGE_SIZE, 1);
-         kmemcpy(temp, (((u32)vAddr) & 0xFFFFF000), PAGE_SIZE);
+         u8 *vAddr = (u8 *)faulting_address;
+         u8 *temp = (u8 *)0; // kmalloc_a(PAGE_SIZE, 1);
+         kmemcpy(temp, (u8 *)(((u32)vAddr) & 0xFFFFF000), PAGE_SIZE);
          page->frame = 0;
          alloc_frame(page, 0, 1);
          switch_page_directory(current_directory);
-         kmemcpy((((u32)vAddr) & 0xFFFFF000), temp, PAGE_SIZE);
+         kmemcpy((u8 *)(((u32)vAddr) & 0xFFFFF000), temp, PAGE_SIZE);
          page->user = 1;
          page->rw = 1;
          page->present = 1;

@@ -199,20 +199,19 @@ void execCmd(int cmd, int argc, char argv[][80])
     }
     case CMD_PWD:
     {
-        // output("pwd start...\n");
         sys_pwd();
         break;
     }
     case CMD_FORK:
     {
         int ret = sys_fork();
-        // output("out of fork: ret:%d\n", ret);
+        output("out of fork: ret:%d\n", ret);
         if (ret == 0)
         {
             while (1)
             {
-                // output("sys_exit: v1 :%d:\n", ret);
-                sys_exit();
+                output("sys_exit: v1 :%d:\n", ret);
+                // sys_exit();
                 while (1)
                     sys_sleep();
                 // output("out of sleep: v1 :%d:\n", ret);

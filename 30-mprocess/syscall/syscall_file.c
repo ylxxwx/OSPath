@@ -27,7 +27,7 @@ s32 ksys_cd_dir(registers_t *regs)
 
 s32 ksys_input(registers_t *regs)
 {
-    show_cur_task("input:");
+    // show_cur_task("input:");
     u8 *buf = (u8 *)regs->ebx;
     return kb_read(buf);
 }

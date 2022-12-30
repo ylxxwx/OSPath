@@ -13,7 +13,7 @@ static void timer_callback(registers_t *regs)
     tcb_t *cur = &tcb[cur_task_id];
     cur->ticks++;
 
-    if (cur->ticks > 10)
+    if (cur->ticks > 5)
     {
         do_context_switch();
     }

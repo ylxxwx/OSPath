@@ -1,5 +1,7 @@
 #include "frame.h"
 #include "type.h"
+#include "nofreemem.h"
+#include "mem.h"
 #include "memory.h"
 #include "panic.h"
 
@@ -15,7 +17,7 @@ extern u32 placement_address;
 void init_frames(u32 mem_size)
 {
     nframes = mem_size / 0x1000;
-    frame_user_count = (u32 *)kmalloc_nofree(sizeof(u8) * nframes);
+    frame_user_count = (u8 *)kmalloc_nofree(sizeof(u8) * nframes);
     kmemset((u8 *)frame_user_count, 0, sizeof(u8) * nframes);
 }
 

@@ -6,6 +6,7 @@
 #include "mem.h"
 #include "frame.h"
 #include "kheap.h"
+#include "panic.h"
 
 page_directory_t *kernel_directory = 0;
 
@@ -32,7 +33,7 @@ void switch_page_directory(page_directory_t *dir)
   current_directory = dir;
   // kprintf("page dir:v:%x, p:%x\n", &dir->tablesPhysical, vaddr_to_paddr(&dir->tablesPhysical));
   // panic("stop");
-  asm("mov %0, %%cr3" ::"r"(vaddr_to_paddr(&dir->tablesPhysical)));
+  asm("mov %0, %%cr3" ::"r"(vaddr_to_paddr((u32)&dir->tablesPhysical)));
   u32 cr0;
   asm("mov %%cr0, %0"
       : "=r"(cr0));
@@ -79,11 +80,11 @@ page_directory_t *clone_crt_page_dir(page_directory_t *src)
   // we can access them.
   //
   // First, map the new page dir.
-  page_directory_t *copied_page_dir = (uint32)(page_directory_t *)kmalloc_a(sizeof(page_directory_t), 1);
+  page_directory_t *copied_page_dir = (page_directory_t *)kmalloc_a(sizeof(page_directory_t), 1);
   if (copied_page_dir == 0)
     panic("clone crt failed. no memory.");
 
-  u32 new_pd_frame = vaddr_to_paddr(copied_page_dir);
+  u32 new_pd_frame = vaddr_to_paddr((u32)copied_page_dir);
   kmemset((u8 *)copied_page_dir, 0, sizeof(page_directory_t));
 
   // First page dir entry is shared - the first 4MB virtual space is reserved.
@@ -116,7 +117,7 @@ page_directory_t *clone_crt_page_dir(page_directory_t *src)
     // Copy page table and set ptes copy-on-write.
     copied_page_dir->tablesPhysical[i] = vaddr_to_paddr(vaddr) | 0x07;
     ;
-    copied_page_dir->tables[i] = vaddr;
+    copied_page_dir->tables[i] = (page_table_t *)vaddr;
 
     // kprintf("clone page table. found a user table. idx:%d va:%x, pa:%x\n", i, vaddr, copied_page_dir->tablesPhysical[i]);
 

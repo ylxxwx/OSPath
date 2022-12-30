@@ -14,11 +14,7 @@ s32 ksys_nil(registers_t *regs)
 
 s32 ksys_sleep(registers_t *regs)
 {
-    show_cur_task("sleep:");
-
-    // kprintf("sys call sleep...\n");
     do_context_switch();
-    show_cur_task("  out of sleep:");
     return 2;
 }
 
