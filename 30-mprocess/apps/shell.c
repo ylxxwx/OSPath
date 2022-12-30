@@ -136,7 +136,7 @@ void execCmd(int cmd, int argc, char argv[][80])
     switch (cmd)
     {
     case CMD_CLS:
-        std_clear_screen();
+        sys_cls();
         break;
     case CMD_LS:
         if (argc == 1)

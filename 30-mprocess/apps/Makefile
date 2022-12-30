@@ -4,13 +4,13 @@
 CC = gcc
 GDB = gdb
 CFLAGS = -g -fno-pie -m32 -ffreestanding 
-LDFLAGS = -m elf_i386  -T./link.ld
+LDFLAGS = -m elf_i386 -T./link.ld -z noexecstack
 
 C_SOURCES = $(wildcard common/*.c *.c)
 HEADERS = $(wildcard common/*.h)
 INC = common
 # Nice syntax for file extension replacement
-OBJS = ${C_SOURCES:.c=.o common/entry.o}
+OBJS = ${C_SOURCES:.c=.o }
 
 all: shell
 

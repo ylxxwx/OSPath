@@ -1,7 +1,6 @@
 #include "syscall.h"
 #include "isr.h"
 #include "panic.h"
-#include "schedule.h"
 #include "screen.h"
 #include "process.h"
 #include "task.h"

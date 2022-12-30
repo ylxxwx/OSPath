@@ -45,11 +45,9 @@ tcb_t *fork_crt_thread()
 
   thread->kernel_esp =
       kernel_stack + KERNEL_STACK_SIZE - (sizeof(interrupt_stack_t) + sizeof(switch_stack_t));
-  // monitor_printf("fork kernel_esp = %x\n", thread->kernel_esp);
 
   interrupt_stack_t *interrupt_stack =
       (interrupt_stack_t *)(thread->kernel_esp + sizeof(switch_stack_t));
-  // monitor_printf("user eip = %x\n", interrupt_stack->eip);
 
   switch_stack_t *switch_stack = (switch_stack_t *)thread->kernel_esp;
   switch_stack->thread_entry_eip = (uint32)syscall_fork_exit;

@@ -1,4 +1,6 @@
 ENTRY(start)
+OUTPUT_FORMAT(elf32-i386)
+
 SECTIONS
 {
   .text 0xA0000000:
@@ -13,14 +15,14 @@ SECTIONS
      data = .; _data = .; __data = .;
      *(.data)
      *(.rodata)
-     . = ALIGN(4096);
+     . = ALIGN(1024);
   }
 
   .bss :
   {
     bss = .; _bss = .; __bss = .;
     *(.bss)
-    . = ALIGN(4096);
+    . = ALIGN(1024);
   }
 
   end = .; _end = .; __end = .;

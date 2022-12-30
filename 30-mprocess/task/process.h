@@ -3,18 +3,21 @@
 
 #include "type.h"
 #include "page.h"
-
-typedef enum {
-  PROCESS_NORMAL,
-  PROCESS_EXIT,
-  PROCESS_EXIT_ZOMBIE
+// #include "task.h"
+typedef enum
+{
+    PROCESS_NORMAL,
+    PROCESS_EXIT,
+    PROCESS_EXIT_ZOMBIE
 } process_status;
 
-typedef struct pcb{
+typedef struct pcb
+{
     int id;
     char name[16];
     int thread_id[4];
     struct pcb *parent;
+    // tcb_t *threads[4];
     process_status status;
     // exit code
     int32 exit_code;
