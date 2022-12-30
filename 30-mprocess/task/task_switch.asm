@@ -40,9 +40,9 @@ syscall_fork_exit:
   ; move esp to interrupt stack
   add esp, 8
 
-  ;push esp
-  ;call kprint_hex
-  ;pop esp
+  push esp
+  call kprint_hex
+  pop esp
 
   ; recover the original data segment.
   pop ecx
@@ -70,11 +70,11 @@ syscall_fork_exit:
   iret
 
 
-  popa
+  ;popa
   ; clean up the pushed error code and pushed ISR number
-  add esp, 8
+  ;add esp, 8
 
   ; make sure interrupt is enabled
-  sti
+  ;sti
   ; pop cs, eip, eflags, user_ss, and user_esp by processor
-  iret
+  ;iret

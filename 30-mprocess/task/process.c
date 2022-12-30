@@ -24,15 +24,15 @@ pcb_t *create_process(char *name, int is_kernel_process)
     if (id == -1)
         panic("no more process resource.");
     process->id = id;
-    if (name != NULL)
-    {
-        kstrcpy(process->name, name);
-    }
-    // else {
-    // char buf[16];
-    // sprintf(buf, "process-%u", process->id);
-    // kstrcpy(process->name, buf);
-    //}
+    // if (name != NULL)
+    //{
+    //     kstrcpy(process->name, name);
+    // }
+    //  else {
+    //  char buf[16];
+    //  sprintf(buf, "process-%u", process->id);
+    //  kstrcpy(process->name, buf);
+    // }
     process->parent = NULL;
 
     process->status = PROCESS_NORMAL;
