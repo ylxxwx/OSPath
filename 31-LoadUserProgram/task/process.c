@@ -4,9 +4,17 @@
 #include "string.h"
 #include "mem.h"
 #include "panic.h"
+#include "schedule.h"
 
 static pcb_t *processes[4];
 static int cur_process = 0;
+void waitforpid(u32 pid)
+{
+    while (processes[pid] != 0)
+    {
+        do_context_switch();
+    }
+}
 
 int find_avail_id()
 {
@@ -89,7 +97,9 @@ void clean_process()
             if (thread_count == 0)
             {
                 if (0 != processes[idx]->page_dir)
+                {
                     free_page_dir(processes[idx]->page_dir);
+                }
                 kfree(processes[idx]);
                 processes[idx] = 0;
             }
@@ -114,5 +124,48 @@ void show_process()
             }
             kprintln();
         }
+    }
+}
+
+int32 process_exec(char *path)
+{
+    // TODO: disallow exec if there are multiple threads running on this process?
+    u32 path_len = strlen(path);
+    char *buf = (char *)kmalloc(path_len + 1);
+    kmemset(buf, 0, path_len + 1);
+    kmemcpy(buf, path, strlen(path));
+    //     Check target file exist.
+    int fsize = file_size(buf);
+    if (fsize <= 0)
+    {
+        kprintf("process_exec can't find the file.\n");
+        kfree(buf);
+        return 0;
+    }
+    //   Find cur thread.
+    tcb_t *crt_thread = get_cur_thread();
+    pcb_t *process = crt_thread->process;
+
+    free_userspace_page(current_directory);
+    switch_page_directory(current_directory);
+
+    if (vfs_read_file(path, (u8 *)0xA0000000) != fsize)
+    {
+        kprintf("Failed to load cmd %s\n", path);
+        // kfree(read_buffer);
+        kfree(buf);
+        return -1;
+    }
+
+    // Create a new thread to exec new program.
+    tcb_t *thread = create_user_thread(process, "asdb", (void *)0xA0000000, 3);
+    // kprintf("after create new thread.\n");
+
+    disable_interrupt();
+    mov_task_ready(thread->id);
+    while (1)
+    {
+        mov_cur_task_dead();
+        do_context_switch();
     }
 }

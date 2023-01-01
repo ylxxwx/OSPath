@@ -39,4 +39,6 @@ void switch_page_directory(page_directory_t *dir);
 void page_fault(registers_t *regs);
 u32 vaddr_to_paddr(u32 address);
 void free_page_dir(page_directory_t *src);
+void free_userspace_page(page_directory_t *src);
+void show_addr(u32 addr);
 #endif //_PAGE_H_

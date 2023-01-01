@@ -6,6 +6,7 @@
 #include "page.h"
 #include "panic.h"
 #include "frame.h"
+#include "task.h"
 
 extern int cur_task_id;
 
@@ -21,14 +22,16 @@ void page_fault(registers_t *regs)
    int us = regs->err_code & 0x4;
    int reserved = regs->err_code & 0x8;
    int id = regs->err_code & 0x10;
+
+   u32 tid = get_cur_thread()->id;
    /*
-   kprintf("Page fault!(%x | %s | %s | %s | %d) @%x \n",
-      regs->err_code,
-      present? "present": "not present",
-      rw?"write":"read",
-      us?"user mode":"kernel mode",
-      id, faulting_address
-      );
+      kprintf("Tid(%d) Page fault!(%x | %s | %s | %s | %d) @%x \n",
+              tid,
+              regs->err_code,
+              present ? "present" : "not present",
+              rw ? "write" : "read",
+              us ? "user mode" : "kernel mode",
+              id, faulting_address);
    */
    page_t *page = get_page(faulting_address, 1, current_directory);
    if (page == 0)
@@ -36,6 +39,7 @@ void page_fault(registers_t *regs)
       panic("Get page failed");
       return;
    }
+   u32 frame = page->frame;
 
    if (!present)
    {
@@ -49,13 +53,13 @@ void page_fault(registers_t *regs)
       if (rw != 0 && page->rw == 0)
       {
          u32 frame_id = page->frame;
-         // kprintf("page:%d, copy on write, count:%d\n", page->frame, get_frame_user_count(frame_id));
+         // kprintf("task:%x, vaddr:%x paddr:%x, copy on write, count:%d\n", tid, faulting_address, page->frame, get_frame_user_count(frame_id));
          if (get_frame_user_count(frame_id) == 1)
          {
             // panic("not sure if we can get here.");
             page->user = 1;
             page->rw = 1;
-            // switch_page_directory(current_directory);
+            switch_page_directory(current_directory);
             return;
          }
 
@@ -69,7 +73,8 @@ void page_fault(registers_t *regs)
          page->user = 1;
          page->rw = 1;
          page->present = 1;
-         switch_page_directory(current_directory);
+         // kprintf("task:%x, vaddr:%x paddr:%x, copy on write, count:%d\n", tid, faulting_address, page->frame, get_frame_user_count(frame_id));
+         //  switch_page_directory(current_directory);
          clear_frame(frame_id);
          return;
       }

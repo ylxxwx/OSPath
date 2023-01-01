@@ -33,4 +33,6 @@ void add_thread_to_process(pcb_t *process, struct task_struct *task);
 void remove_thread_from_process(pcb_t *process, struct task_struct *task);
 void show_process();
 void clean_process();
+void waitforpid(u32 pid);
+int32 process_exec(char *path);
 #endif // _PROCESS_H_

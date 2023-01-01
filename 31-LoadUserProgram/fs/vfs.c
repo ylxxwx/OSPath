@@ -42,8 +42,10 @@ static vfs_node_t *path_to_node(char *path)
     char path_stack[16][80];
     kmemset((u8 *)path_stack, 0, 16 * 80);
     int num = split(path_stack, path, "/");
+    // kprintf("num of items in path:%d\n", num);
     for (int idx = 0; idx < num; idx++)
     {
+        // kprintf("idx:%d item:%s\n", idx, path_stack[idx]);
         if (0 == strcmp("..", path_stack[idx]))
         {
             target = target->parent;
@@ -59,8 +61,10 @@ static vfs_node_t *path_to_node(char *path)
             {
                 if (target->childs[i] == 0)
                     continue;
+                // kprintf("child name:%s\n", target->childs[i]->name);
                 if (0 == cmp_str(target->childs[i]->name, path_stack[idx], 64))
                 {
+                    // kprintf("equal\n");
                     if (target->childs[i]->synced == 0)
                     {
                         sync_node(target->childs[i]);
@@ -243,6 +247,7 @@ void vfs_pwd()
 
 int file_size(char *path)
 {
+    // kprintf("file_size:%s\n", path);
     vfs_node_t *target = path_to_node(path);
     if (target->is_dir)
     {

@@ -143,7 +143,23 @@ int main()
             continue;
         }
         int cmd = str_2_cmd(str[0]);
-        execCmd(cmd, num, str);
+        if (cmd == CMD_INVALID)
+        {
+            int ret = sys_fork();
+            // output("out of fork: ret:%d\n", ret);
+            if (ret == 0)
+            {
+                while (1)
+                {
+                    sys_execute(str[0]);
+                }
+            }
+            sys_waitforpid(ret);
+        }
+        else
+        {
+            execCmd(cmd, num, str);
+        }
     }
 }
 
@@ -208,27 +224,33 @@ void execCmd(int cmd, int argc, char argv[][80])
     {
         help(CMD_INVALID);
         break;
-    }
-    case CMD_PWD:
-    {
-        sys_pwd();
-        break;
-    }
+    } /*
+     case CMD_PWD:
+     {
+         sys_pwd();
+         break;
+     }*/
     case CMD_FORK:
     {
         int ret = sys_fork();
-        // output("out of fork: ret:%d\n", ret);
+        output("out of fork: ret:%d\n", ret);
         if (ret == 0)
         {
             while (1)
             {
-                // output("sys_exit: v1 :%d:\n", ret);
+                output("sys_exit: v1 :%d:\n", ret);
+                sys_ls(".");
+                sys_ls("data1");
+                sys_execute("/bin/shell");
                 sys_exit();
                 while (1)
                     sys_sleep();
-                // output("out of sleep: v1 :%d:\n", ret);
+                output("out of sleep: v1 :%d:\n", ret);
             }
         }
+
+        sys_waitforpid(ret);
+
         break;
     }
     case CMD_TOP:
@@ -259,6 +281,11 @@ void execCmd(int cmd, int argc, char argv[][80])
     case CMD_EXIT:
     {
         return;
+    }
+    default:
+    {
+
+        break;
     }
     }
 }

@@ -5,13 +5,17 @@
 #include "task.h"
 #include "process.h"
 #include "schedule.h"
-
+u32 debug = 0;
 s32 ksys_exit(registers_t *regs)
 {
-    show_cur_task("exit:");
+    // show_cur_task("exit:");
+    // kprintf("enter ksys_exit\n");
     mov_cur_task_dead();
+    // mov_task_wait(get_cur_thread()->id);
+    //  panic("want to panic");
+    // debug = 1;
     do_context_switch();
-    kprintf("will not reach here ksys_exit.\n");
+    // kprintf("will not reach here ksys_exit.\n");
 }
 
 s32 ksys_fork(registers_t *regs)
@@ -32,7 +36,21 @@ s32 ksys_fork(registers_t *regs)
 
     thread->status = TASK_READY;
     // kprintf("ksys_fork return 1\n");
-    return 1;
+    return process->id;
+}
+
+s32 ksys_exec(registers_t *regs)
+{
+    char *path = (char *)regs->ebx;
+    process_exec(path);
+    return 0;
+}
+
+s32 ksys_waitforpid(registers_t *regs)
+{
+    u32 pid = regs->ebx;
+    waitforpid(pid);
+    return 0;
 }
 
 s32 ksys_show_task(registers_t *regs)

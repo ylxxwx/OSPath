@@ -18,6 +18,9 @@ s32 ksys_fork(registers_t *regs);
 s32 ksys_exit(registers_t *regs);
 s32 ksys_show_task(registers_t *regs);
 s32 ksys_clean_task(registers_t *regs);
+s32 ksys_waitforpid(registers_t *regs);
+s32 ksys_exec(registers_t *regs);
+
 void init_syscalls();
 
 #endif

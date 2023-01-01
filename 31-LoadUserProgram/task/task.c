@@ -144,19 +144,25 @@ void mov_task_wait(int task_id)
 static void kernel_main_thread()
 {
   prepare_first_user_program();
-
   pcb_t *init_process = create_process("init_process", false);
-  tcb_t *user_thread = create_user_thread(init_process, "main", (void *)/*user_func*/ 0xA0000000);
+  tcb_t *user_thread = create_user_thread(init_process, "main", (void *)/*user_func*/ 0xA0000000, 1);
   user_thread->status = TASK_READY;
 
   int count = 0;
   while (true)
   {
     count++;
+    if (count % 10 == 1)
+    {
+      clean_task();
+    }
+    else if (count % 10 == 2)
+    {
+      clean_process();
+    }
+
     if (count % 100 == 99)
     {
-      // kprintf("CPU IDLE\n");
-      // kprintf("task state: %d-%d-%d-%d\n", tcb[0].status, tcb[1].status, tcb[2].status, tcb[3].status);
       count = 0;
     }
     asm("hlt");
@@ -183,10 +189,11 @@ void init_task()
   pcb_t *main_process = create_process("kernel_main_process", /* is_kernel_process = */ true);
 
   tcb_t *main_thread = create_kernel_thread(main_process, "main", (void *)kernel_main_thread);
+
   main_thread->status = TASK_READY;
 
   switch_page_directory(main_process->page_dir);
-  panic("init task go to main thread.");
+  kprintf("init task go to main thread.\n");
   // kprintf("task Create state: %d-%d-%d-%d\n", tcb[0].status, tcb[1].status, tcb[2].status, tcb[3].status);
   asm volatile(
       "movl %0, %%esp; \
@@ -207,10 +214,6 @@ int get_next_ready_task()
     }
   }
   return 0;
-}
-
-void schedule_thread_exit()
-{
 }
 
 static void kernel_thread(thread_func *function)
@@ -342,10 +345,10 @@ uint32 prepare_user_stack(
   return stack_top;
 }
 
-tcb_t *create_user_thread(pcb_t *pcb, char *name, void *function)
+tcb_t *create_user_thread(pcb_t *pcb, char *name, void *function, int idx)
 {
   tcb_t *task = create_thread(pcb, name, function, THREAD_DEFAULT_PRIORITY, true);
-  int stack_index = 1;
+  int stack_index = idx;
   task->user_stack_index = stack_index;
   uint32 thread_stack_top = USER_STACK_TOP - stack_index * USER_STACK_SIZE;
   map_address((uint32)thread_stack_top - PAGE_SIZE, 0, 1);

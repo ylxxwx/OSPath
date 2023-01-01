@@ -4,6 +4,8 @@
 #define SYS_ID_TOP 0x0D
 #define SYS_ID_FSIZE 0x0E
 #define SYS_ID_CLS_TASK 0x0F
+#define SYS_ID_WAIT4PID 0x10
+#define SYS_ID_EXECUTE 0x11
 
 s32 sys_call(u32 sys_id, u32 p1, u32 p2, u32 p3)
 {
@@ -44,6 +46,16 @@ s32 sys_fsize(char *path_addr)
 s32 sys_cls_task()
 {
     return sys_call(SYS_ID_CLS_TASK, 0, 0, 0);
+}
+
+s32 sys_waitforpid(u32 pid)
+{
+    return sys_call(SYS_ID_WAIT4PID, pid, 0, 0);
+}
+
+s32 sys_execute(char *path)
+{
+    return sys_call(SYS_ID_EXECUTE, (u32)path, 0, 0);
 }
 
 s32 sys_mount_root(u32 major, u32 min, u32 partition)

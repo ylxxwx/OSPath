@@ -13,5 +13,6 @@ void more_file(char *path);
 int vfs_read_file(char *path, u8 *buf);
 void vfs_pwd();
 int file_size(char *fn);
+// int file_exist(char *fn);
 
 #endif //_VFS_H_

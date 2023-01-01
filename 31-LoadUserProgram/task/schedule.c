@@ -10,7 +10,6 @@ void do_context_switch()
 {
   tcb_t *old_thread = &tcb[cur_task_id];
   int next_id = get_next_ready_task();
-  // kprintf("do cs, old id:%d, next:%d\n", cur_task_id, next_id);
   if (next_id == cur_task_id)
   {
     if (cur_task_id == 0)
@@ -39,11 +38,11 @@ void do_context_switch()
   next_thread->status = TASK_RUNNING;
   cur_task_id = next_id;
 
-  // kprintf("context switch from :%x to :%x\n", old_thread->id, next_thread->id);
   if (old_thread->process != next_thread->process)
   {
     switch_page_directory(next_thread->process->page_dir);
   }
+
   // kprintf("update tss to: %x\n", next_thread->kernel_stack + KERNEL_STACK_SIZE);
   update_tss_esp(next_thread->kernel_stack + KERNEL_STACK_SIZE);
   // kprintf("update done tss to: %x\n", next_thread->kernel_stack + KERNEL_STACK_SIZE);
@@ -54,4 +53,10 @@ void schedule_thread_yield()
 {
   disable_interrupt();
   do_context_switch();
+}
+
+void schedule_thread_exit()
+{
+  mov_cur_task_dead();
+  schedule_thread_yield();
 }

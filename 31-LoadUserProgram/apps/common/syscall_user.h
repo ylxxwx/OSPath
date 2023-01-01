@@ -18,5 +18,7 @@ s32 sys_exit();
 s32 sys_top();
 s32 sys_fsize(char *path_addr);
 s32 sys_cls_task();
+s32 sys_waitforpid(u32 pid);
+s32 sys_execute(char *path);
 
 #endif // _SYSCALL_USER_H_

@@ -5,6 +5,7 @@
 #include "screen.h"
 #include "keyboard.h"
 #include "vfs.h"
+#include "task.h"
 
 s32 ksys_nil(registers_t *regs)
 {
@@ -41,6 +42,8 @@ static void *syscalls[] = {
     &ksys_show_task,
     &ksys_filesize,
     &ksys_clean_task,
+    &ksys_waitforpid,
+    &ksys_exec,
 };
 
 s32 sys_handler(registers_t *r)

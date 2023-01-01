@@ -7,7 +7,7 @@
 #include "frame.h"
 #include "kheap.h"
 #include "panic.h"
-
+#include "task.h"
 page_directory_t *kernel_directory = 0;
 
 u32 vaddr_to_paddr(u32 address)
@@ -41,6 +41,15 @@ void switch_page_directory(page_directory_t *dir)
   asm("mov %0, %%cr0" ::"r"(cr0));
 }
 
+void show_addr(u32 addr)
+{
+  page_t *page = get_page(addr, 0, current_directory);
+  if (page)
+  {
+    kprintf("tid(%d) vaddr%x frame:%x count:%d, rw:%d\n", get_cur_thread()->id, addr,
+            page->frame, get_frame_user_count(page->frame), page->rw);
+  }
+}
 /*
    virtual address <--> page
 */
@@ -55,8 +64,9 @@ page_t *get_page(u32 address, int make, page_directory_t *dir)
   else if (make)
   {
     u32 tmp = 0;
-    dir->tables[table_idx] = (page_table_t *)kmalloc_ap_nofree(sizeof(page_table_t), 1, &tmp);
-    if (dir->tables[table_idx] == 0 && kheap_ready())
+    if (!kheap_ready())
+      dir->tables[table_idx] = (page_table_t *)kmalloc_ap_nofree(sizeof(page_table_t), 1, &tmp);
+    else
     {
       dir->tables[table_idx] = (page_table_t *)kmalloc_a(sizeof(page_table_t), 1);
       tmp = vaddr_to_paddr((u32)dir->tables[table_idx]);
@@ -107,7 +117,6 @@ page_directory_t *clone_crt_page_dir(page_directory_t *src)
     {
       continue;
     }
-    // kprintf("clone page table. found a user table. %d\n", i);
     //  Alloc a new frame for copied page table.
     u32 vaddr = (u32)kmalloc_a(PAGE_SIZE, 1);
     if (vaddr == 0)
@@ -116,9 +125,7 @@ page_directory_t *clone_crt_page_dir(page_directory_t *src)
     }
     // Copy page table and set ptes copy-on-write.
     copied_page_dir->tablesPhysical[i] = vaddr_to_paddr(vaddr) | 0x07;
-    ;
     copied_page_dir->tables[i] = (page_table_t *)vaddr;
-
     // kprintf("clone page table. found a user table. idx:%d va:%x, pa:%x\n", i, vaddr, copied_page_dir->tablesPhysical[i]);
 
     page_table_t *dst_table = (page_table_t *)vaddr;
@@ -132,34 +139,48 @@ page_directory_t *clone_crt_page_dir(page_directory_t *src)
       {
         continue;
       }
-      // kprintf("clone page table. found a user page. %d. paddr:%x\n", j, src_page->frame);
+      src_page->rw = 0;
       *dst_page = *src_page;
       // Mark copy-on-write: increase copy-on-write ref count.
-      src_page->rw = 0;
-      dst_page->rw = 0;
-      dst_page->present = 1;
-      dst_page->user = 1;
-      // dst_page->ker
+      // dst_page->rw = 0;
+      // dst_page->present = 1;
+      // dst_page->user = 1;
+      //  dst_page->ker
       set_frame(src_page->frame);
-      // kprintf("page frame:%d count:%d\n", src_page->frame, get_frame_user_count(src_page->frame));
     }
   }
+  switch_page_directory(current_directory);
   return copied_page_dir;
 }
 
-void free_page_dir(page_directory_t *src)
+void free_userspace_page(page_directory_t *src)
 {
   // Copy user space page tables.
   for (uint32 i = 1; i < 768; i++)
   {
     page_table_t *src_table = src->tables[i];
+
     if (src_table == 0)
     {
       continue;
     }
-    // kprintf("clone page table. found a user table. %d\n", i);
-    //  Alloc a new frame for copied page table.
-    kfree((u8 *)src->tables[i]);
+    for (int j = 0; j < 1024; j++)
+    {
+      page_t *src_page = &src_table->pages[j];
+      if (!src_page->present)
+      {
+        continue;
+      }
+      clear_frame(src_page->frame);
+    }
+    kfree((u8 *)(src->tables[i]));
+    src->tables[i] = 0;
+    src->tablesPhysical[i] = 0;
   }
+}
+
+void free_page_dir(page_directory_t *src)
+{
+  free_userspace_page(src);
   kfree(src);
 }

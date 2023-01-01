@@ -85,7 +85,7 @@ void show_task();
 void show_cur_task(char *);
 // Create a new thread.
 tcb_t *create_thread(pcb_t *, char *name, thread_func function, uint32 priority, uint8 user);
-tcb_t *create_user_thread(pcb_t *, char *name, void *function);
+tcb_t *create_user_thread(pcb_t *, char *name, void *function, int idx);
 uint32 prepare_user_stack(tcb_t *thread, uint32 stack_top, uint32 argc, char **argv, uint32 return_addr);
 
 tcb_t *fork_crt_thread();
