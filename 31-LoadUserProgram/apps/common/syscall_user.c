@@ -53,9 +53,9 @@ s32 sys_waitforpid(u32 pid)
     return sys_call(SYS_ID_WAIT4PID, pid, 0, 0);
 }
 
-s32 sys_execute(char *path)
+s32 sys_exec(char *path, cmd_t *cmd)
 {
-    return sys_call(SYS_ID_EXECUTE, (u32)path, 0, 0);
+    return sys_call(SYS_ID_EXECUTE, (u32)path, (u32)cmd, 0);
 }
 
 s32 sys_mount_root(u32 major, u32 min, u32 partition)

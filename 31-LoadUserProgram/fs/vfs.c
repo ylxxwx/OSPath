@@ -42,7 +42,7 @@ static vfs_node_t *path_to_node(char *path)
     char path_stack[16][80];
     kmemset((u8 *)path_stack, 0, 16 * 80);
     int num = split(path_stack, path, "/");
-    // kprintf("num of items in path:%d\n", num);
+    // kprintf("path_to_node: num of items in path:%d\n", num);
     for (int idx = 0; idx < num; idx++)
     {
         // kprintf("idx:%d item:%s\n", idx, path_stack[idx]);

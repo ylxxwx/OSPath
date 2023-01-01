@@ -9,6 +9,7 @@
 #include "panic.h"
 
 #define MAX_TASK_ID 16
+
 extern tss_entry_t tss_entry;
 extern void switch_to_user_mode();
 extern void syscall_fork_exit();
@@ -322,9 +323,6 @@ tcb_t *create_kernel_thread(pcb_t *pcb, char *name, void *function)
 {
   return create_thread(pcb, name, function, THREAD_DEFAULT_PRIORITY, false);
 }
-
-#define USER_STACK_TOP 0xC0000000 // 0xC0000000 - 4MB
-#define USER_STACK_SIZE 65536     // 64KB
 
 void thread_exit()
 {

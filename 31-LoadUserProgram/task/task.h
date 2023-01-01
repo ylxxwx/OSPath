@@ -9,6 +9,10 @@
 #define THREAD_STACK_MAGIC 0x32602021
 #define THREAD_DEFAULT_PRIORITY 10
 
+#define USER_PARAM_TOP 0xC0000000
+#define USER_STACK_TOP 0xC0000000 - 0x1000 // 0xC0000000 - 4MB
+#define USER_STACK_SIZE 65536              // 64KB
+
 #define KERNEL_STACK_SIZE 8192
 
 #define EFLAGS_MBS (1 << 1)
@@ -70,6 +74,7 @@ struct switch_stack
   void(*unused_retaddr);
   thread_func *function;
 };
+
 typedef struct switch_stack switch_stack_t;
 
 extern int cur_task_id;

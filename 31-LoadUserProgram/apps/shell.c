@@ -1,7 +1,5 @@
 #include "syscall_user.h"
-// #include "shell.h"
 #include "io.h"
-// #include "mem.h"
 #include "string.h"
 
 #define CMD_CLS 0
@@ -13,12 +11,10 @@
 #define CMD_TRACEON 6
 #define CMD_TRACEOFF 7
 #define CMD_INVALID 8
-#define CMD_PWD 9
 #define CMD_FORK 10
 #define CMD_TOP 11
 #define CMD_FSIZE 12
 #define CMD_CLS_TASK 13
-// int main();
 
 void execCmd(int cmd, int argc, char argv[][80]);
 
@@ -106,10 +102,6 @@ const int str_2_cmd(char *str)
     {
         cmd = CMD_TRACEOFF;
     }
-    else if (0 == strcmp("pwd", str))
-    {
-        cmd = CMD_PWD;
-    }
     else if (0 == strcmp("fork", str))
     {
         cmd = CMD_FORK;
@@ -117,7 +109,7 @@ const int str_2_cmd(char *str)
     return cmd;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
     u8 buf[1024];
     s32 ret = 0;
@@ -134,31 +126,38 @@ int main()
             continue;
         }
 
-        char str[4][80];
-        memset((u8 *)str, 0, 4 * 80);
-        int num = split(str, buf, " ");
+        cmd_t CMD;
+        memset(&CMD, 0, sizeof(CMD));
+        int num = split(CMD.str, buf, " ");
+        // int num = split(CMD.argv, buf, " ");
+        CMD.argc = num;
+        for (int idx = 0; idx < 16; idx++)
+        {
+            CMD.argv[idx] = &CMD.str[idx][0];
+        }
         if (num == 0)
         {
             output("%s, split 0.\n", buf);
             continue;
         }
-        int cmd = str_2_cmd(str[0]);
+        int cmd = str_2_cmd(CMD.argv[0] /*str[0]*/);
         if (cmd == CMD_INVALID)
         {
             int ret = sys_fork();
             // output("out of fork: ret:%d\n", ret);
             if (ret == 0)
             {
-                while (1)
-                {
-                    sys_execute(str[0]);
-                }
+                // while (1)
+                //{
+                sys_exec(CMD.argv[0], &CMD);
+                sys_exit();
+                //}
             }
             sys_waitforpid(ret);
         }
         else
         {
-            execCmd(cmd, num, str);
+            execCmd(cmd, num, CMD.argv);
         }
     }
 }
@@ -224,12 +223,7 @@ void execCmd(int cmd, int argc, char argv[][80])
     {
         help(CMD_INVALID);
         break;
-    } /*
-     case CMD_PWD:
-     {
-         sys_pwd();
-         break;
-     }*/
+    }
     case CMD_FORK:
     {
         int ret = sys_fork();
@@ -238,10 +232,8 @@ void execCmd(int cmd, int argc, char argv[][80])
         {
             while (1)
             {
-                output("sys_exit: v1 :%d:\n", ret);
                 sys_ls(".");
                 sys_ls("data1");
-                sys_execute("/bin/shell");
                 sys_exit();
                 while (1)
                     sys_sleep();
@@ -284,7 +276,6 @@ void execCmd(int cmd, int argc, char argv[][80])
     }
     default:
     {
-
         break;
     }
     }

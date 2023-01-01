@@ -127,20 +127,31 @@ void show_process()
     }
 }
 
-int32 process_exec(char *path)
+int32 process_exec(char *path, cmd_t *cmd)
 {
     // TODO: disallow exec if there are multiple threads running on this process?
+    cmd_t save_cmd;
+    kmemcpy((u8 *)&save_cmd, cmd, sizeof(cmd_t));
+
     u32 path_len = strlen(path);
-    char *buf = (char *)kmalloc(path_len + 1);
-    kmemset(buf, 0, path_len + 1);
-    kmemcpy(buf, path, strlen(path));
+
+    char *buf = (char *)kmalloc(path_len + 6);
+    char *target_path = buf + 5;
+    kmemset(buf, 0, path_len + 6);
+    kmemcpy(buf, "/bin/", 5);
+    kmemcpy(buf + 5, path, strlen(path));
     //     Check target file exist.
-    int fsize = file_size(buf);
+    int fsize = file_size(target_path);
     if (fsize <= 0)
     {
-        kprintf("process_exec can't find the file.\n");
-        kfree(buf);
-        return 0;
+        target_path = buf;
+        fsize = file_size(target_path);
+        if (fsize <= 0)
+        {
+            kprintf("process_exec can't find the file.\n");
+            kfree(buf);
+            return 0;
+        }
     }
     //   Find cur thread.
     tcb_t *crt_thread = get_cur_thread();
@@ -149,17 +160,26 @@ int32 process_exec(char *path)
     free_userspace_page(current_directory);
     switch_page_directory(current_directory);
 
-    if (vfs_read_file(path, (u8 *)0xA0000000) != fsize)
+    if (vfs_read_file(target_path, (u8 *)0xA0000000) != fsize)
     {
-        kprintf("Failed to load cmd %s\n", path);
+        kprintf("cmd %s not found.\n", path);
         // kfree(read_buffer);
         kfree(buf);
         return -1;
     }
 
-    // Create a new thread to exec new program.
+    cmd_t *target_cmd = (cmd_t *)((u8 *)USER_PARAM_TOP - sizeof(cmd_t));
+    kmemcpy((u8 *)target_cmd, (u8 *)&save_cmd, sizeof(cmd_t));
+    for (int idx = 0; idx < 16; idx++)
+    {
+        if (save_cmd.argv[idx] != 0)
+        {
+            target_cmd->argv[idx] = target_cmd->str[idx];
+        }
+    }
+    // panic("free save cmd.");
+    //  Create a new thread to exec new program.
     tcb_t *thread = create_user_thread(process, "asdb", (void *)0xA0000000, 3);
-    // kprintf("after create new thread.\n");
 
     disable_interrupt();
     mov_task_ready(thread->id);

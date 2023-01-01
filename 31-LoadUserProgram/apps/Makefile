@@ -15,15 +15,15 @@ OBJS = ${C_SOURCES:.c=.o common/entry.o}
 all: shell pwd
 	./writedisk.sh
 
-shell: shell.elf 
-	objcopy -O binary shell.elf shell
+shell: common/entry.o shell.o ${OBJS}
+	ld $(LDFLAGS) -o $@ $^ --oformat binary
 
 shell.elf: common/entry.o shell.o ${OBJS}
 	ld $(LDFLAGS) -o $@ $^
 # --oformat binary
 
-pwd: pwd.elf
-	objcopy -O binary pwd.elf pwd
+pwd:  common/entry.o pwd.o ${OBJS}
+	ld $(LDFLAGS) -o $@ $^ --oformat binary
 
 pwd.elf: common/entry.o pwd.o ${OBJS}
 	ld $(LDFLAGS) -o $@ $^
@@ -35,4 +35,4 @@ pwd.elf: common/entry.o pwd.o ${OBJS}
 	nasm $< -f elf -o $@
 
 clean:
-	rm -rf shell shell.elf ./*.o common/*.o
+	rm -rf shell pwd *.elf ./*.o common/*.o

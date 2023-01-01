@@ -143,7 +143,9 @@ int split(char dst[][80], char *str, char *spl)
 {
     int n = 0;
     char *result = 0;
-    result = strtok(str, spl);
+    char buf[128];
+    kstrcpy(buf, str);
+    result = strtok(buf, spl);
     while (result != 0 && *result != 0)
     {
         kstrcpy(dst[n++], result);

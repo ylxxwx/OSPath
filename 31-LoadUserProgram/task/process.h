@@ -28,11 +28,18 @@ typedef struct pcb
     page_directory_t *page_dir;
 } pcb_t;
 
+typedef struct
+{
+    int argc;
+    char *argv[16];
+    char str[16][80];
+} cmd_t;
+
 pcb_t *create_process(char *name, int is_kernel_process);
 void add_thread_to_process(pcb_t *process, struct task_struct *task);
 void remove_thread_from_process(pcb_t *process, struct task_struct *task);
 void show_process();
 void clean_process();
 void waitforpid(u32 pid);
-int32 process_exec(char *path);
+int32 process_exec(char *path, cmd_t *cmd);
 #endif // _PROCESS_H_

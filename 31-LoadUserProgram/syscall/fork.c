@@ -42,7 +42,9 @@ s32 ksys_fork(registers_t *regs)
 s32 ksys_exec(registers_t *regs)
 {
     char *path = (char *)regs->ebx;
-    process_exec(path);
+    cmd_t *cmd = (cmd_t *)regs->ecx;
+    // kprintf("ksys_exec, argc:%d, argv[0]:%s\n", cmd->argc, cmd->argv[0]);
+    process_exec(path, cmd);
     return 0;
 }
 
