@@ -12,8 +12,11 @@ INC = common
 # Nice syntax for file extension replacement
 OBJS = ${C_SOURCES:.c=.o common/entry.o}
 
-all: shell pwd
+all: shell pwd helloworld
 	./writedisk.sh
+
+helloworld: common/entry.o hello_world.o ${OBJS}
+	ld $(LDFLAGS) -o $@ $^ --oformat binary
 
 shell: common/entry.o shell.o ${OBJS}
 	ld $(LDFLAGS) -o $@ $^ --oformat binary
@@ -35,4 +38,4 @@ pwd.elf: common/entry.o pwd.o ${OBJS}
 	nasm $< -f elf -o $@
 
 clean:
-	rm -rf shell pwd *.elf ./*.o common/*.o
+	rm -rf shell pwd helloworld  *.elf ./*.o common/*.o

@@ -16,7 +16,7 @@
 #define CMD_FSIZE 12
 #define CMD_CLS_TASK 13
 
-void execCmd(int cmd, int argc, char argv[][80]);
+void execCmd(int cmd, int argc, char *argv[]);
 
 void help(int cmd)
 {
@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
     }
 }
 
-void execCmd(int cmd, int argc, char argv[][80])
+void execCmd(int cmd, int argc, char *argv[])
 {
     switch (cmd)
     {
@@ -179,6 +179,7 @@ void execCmd(int cmd, int argc, char argv[][80])
         break;
     case CMD_CD:
     {
+        output("cd %s:%s\n", argv[0], argv[1]);
         if (argc == 2)
         {
             sys_cd_dir(argv[1]);
